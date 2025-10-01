@@ -158,4 +158,175 @@ sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 # Configure time sync
 systemctl enable --now chronyd
 ```
+### Step 4: SELinux SSH Fix
 
+- After SELinux relabel, SSH password authentication is blocked. Install custom policy:
+
+```bash
+cat > /tmp/sshd_shadow_fix.te << 'EOF'
+module sshd_shadow_fix 1.0;
+
+require {
+    type sshd_t;
+    type shadow_t;
+    class file { read getattr open };
+}
+
+allow sshd_t shadow_t:file { read getattr open };
+EOF
+
+checkmodule -M -m -o /tmp/sshd_shadow_fix.mod /tmp/sshd_shadow_fix.te
+semodule_package -o /tmp/sshd_shadow_fix.pp -m /tmp/sshd_shadow_fix.mod
+semodule -i /tmp/sshd_shadow_fix.pp
+rm -f /tmp/sshd_shadow_fix.*
+
+# Verify installed
+semodule -l | grep sshd_shadow
+```
+
+### Step 5: Remove Users
+
+- Remove any users created during setup (cloud-init will create them):
+
+```bash
+# Remove regular users if any exist
+userdel -r rocky 2>/dev/null || true
+userdel -r admin 2>/dev/null || true
+
+# Verify only system users remain
+awk -F: '$3 >= 1000 {print $1}' /etc/passwd
+# Should show nothing
+```
+
+### Step 6: System CleanUp
+
+```bash
+# Clean cloud-init
+cloud-init clean --logs --seed
+
+# Remove SSH host keys (regenerated on clone)
+rm -f /etc/ssh/ssh_host_*
+
+# Remove machine-id (regenerated on clone)
+truncate -s 0 /etc/machine-id
+
+# Clean logs
+logrotate -f /etc/logrotate.conf
+journalctl --vacuum-time=1s
+cat /dev/null > /var/log/audit/audit.log
+cat /dev/null > /var/log/wtmp
+cat /dev/null > /var/log/lastlog
+
+# Clean package cache
+dnf clean all
+
+# Clean bash history
+history -c
+cat /dev/null > ~/.bash_history
+```
+
+### Step 7: SELinux Relabel
+```bash
+# Schedule filesystem relabel
+touch /.autorelabel
+
+# Reboot
+reboot
+
+# System will:
+# - Boot into relabel mode
+# - Relabel all files (10-20 minutes)
+# - Automatically reboot when complete
+```
+
+### Step 8: Post-Relabel Verification
+```bash
+# Check SELinux enforcing
+getenforce
+# Output: Enforcing
+
+# Check no relabel file remains
+ls /.autorelabel
+# Output: No such file or directory
+
+# Check SELinux policy installed
+semodule -l | grep sshd_shadow
+# Output: sshd_shadow_fix
+
+# Final cleanup
+history -c
+shutdown -h now
+```
+
+### Step 9: Convert to Template
+- In Proxmox Web UI:
+```bash
+1. Right-click VM → Convert to Template
+2. Confirm: Yes
+3. VM icon changes to template icon
+```
+
+### Add CloudInit drive:
+```bash
+1. Select template → Hardware tab
+2. Click: Add → CloudInit Drive
+3. Storage: local-lvm
+4. Click: Add
+5. Verify: CloudInit Drive (ide2) appears in hardware list
+```
+## Important Security Notes
+
+**Before using this configuration:**
+
+1. Replace placeholder SSH keys with your actual public key
+2. Never commit private keys to git repositories
+3. Generate your SSH key pair:
+```bash
+   ssh-keygen -t ed25519 -C "your-email@example.com"
+```
+
+
+### Cloud-Init Configuration
+
+- Create Custom User Config
+- On Proxmox host:
+```bash
+# Create snippets directory
+mkdir -p /var/lib/vz/snippets
+
+# Create user configuration
+cat > /var/lib/vz/snippets/user-config.yaml << 'EOF'
+#cloud-config
+users:
+  - name: rocky
+    groups: wheel
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA... your-public-key-here
+
+ssh_pwauth: false
+disable_root: true
+
+write_files:
+  - path: /etc/ssh/sshd_config.d/50-cloud-init.conf
+    permissions: '0644'
+    owner: root:root
+    content: |
+      PasswordAuthentication no
+      PubkeyAuthentication yes
+      PermitRootLogin no
+
+runcmd:
+  - systemctl restart sshd
+EOF
+```
+
+### Replace ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA... with your actual SSH public key from:
+```bash
+# On your workstation
+cat ~/.ssh/id_ed25519.pub
+```
+
+### Using Template
+- Clone VM via Command Line
