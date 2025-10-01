@@ -50,7 +50,7 @@ This guide documents the creation of a Rocky Linux 9.6 VM template for Kubernete
 ```
 
 ### Step 2: Configure Cloud-Init
-
+```bash
 - SSH to the VM and run:
 
 ```bash
@@ -330,3 +330,157 @@ cat ~/.ssh/id_ed25519.pub
 
 ### Using Template
 - Clone VM via Command Line
+```bash
+# Clone template
+qm clone 100 300 --name k8s-node-01 --full
+
+# Apply cloud-init config
+qm set 300 --cicustom "user=local:snippets/user-config.yaml"
+
+# Configure network (static IP)
+qm set 300 --ipconfig0 "ip=192.168.0.11/24,gw=192.168.0.1"
+
+# Configure DNS
+qm set 300 --nameserver 1.1.1.1 --searchdomain local
+
+# Start VM
+qm start 300
+
+# Wait 60 seconds for cloud-init
+
+# SSH from workstation (no password required)
+ssh rocky@192.168.0.11
+```
+
+### Clone VM via Web UI
+```bash
+1. Right-click template → Clone
+2. Mode: Full Clone
+3. Name: k8s-node-01
+4. VM ID: 300
+5. Click: Clone
+
+6. Select cloned VM → Cloud-Init tab
+7. IP Config (net0): Static
+   - IPv4/CIDR: 192.168.0.11/24
+   - Gateway: 192.168.0.1
+8. DNS: 1.1.1.1
+9. Click: Regenerate Image
+
+10. In Proxmox shell:
+    qm set 300 --cicustom "user=local:snippets/user-config.yaml"
+
+11. In Web UI: Click Regenerate Image again
+12. Click: Start
+```
+
+### Verification
+
+- After cloning and starting a VM, verify:
+
+```bash
+# SSH to VM
+ssh rocky@<VM-IP>
+
+# Check cloud-init completed
+cloud-init status
+# Output: status: done
+
+# Check SELinux enforcing
+getenforce
+# Output: Enforcing
+
+# Check user created
+id rocky
+# Output: uid=1000(rocky) gid=1000(rocky) groups=1000(rocky),10(wheel)
+
+# Check sudo works (no password)
+sudo whoami
+# Output: root
+
+# Check SSH key installed
+cat ~/.ssh/authorized_keys
+# Should show your public key
+
+# Check unique machine-id
+cat /etc/machine-id
+# Should show non-zero unique ID
+
+# Check SSH host keys regenerated
+ls /etc/ssh/ssh_host_*
+# Should show multiple key files
+```
+
+### Troubleshooting
+- SSH Permission Denied
+- Symptom: Cannot SSH to cloned VM
+
+### Solution
+```bash
+# In VM console, check password auth
+sudo sshd -T | grep passwordauthentication
+
+# If shows "yes", disable it
+sudo bash -c 'cat > /etc/ssh/sshd_config.d/50-disable-password.conf << EOF
+PasswordAuthentication no
+EOF'
+sudo systemctl restart sshd
+
+# Verify SSH key in authorized_keys
+cat ~/.ssh/authorized_keys
+
+# Check cloud-init logs
+sudo cat /var/log/cloud-init.log
+```
+
+### SELinux Blocking SSH
+- Symptom: SSH works with setenforce 0 but not with enforcing
+
+### Solution:
+```bash
+# Check if policy installed
+sudo semodule -l | grep sshd_shadow
+
+# If missing, reinstall
+# (Use policy creation commands from Step 4)
+
+# Check for denials
+sudo ausearch -m avc -ts recent | grep sshd
+```
+
+### Cloud-init Not Running
+- Symptom: User not created, SSH keys not installed
+
+### Solution:
+```bash
+# Check cloud-init status
+sudo cloud-init status --long
+
+# Re-run cloud-init
+sudo cloud-init clean
+sudo cloud-init init
+sudo cloud-init modules --mode=config
+sudo cloud-init modules --mode=final
+
+# Check logs
+sudo cat /var/log/cloud-init.log
+```
+
+### Summary
+Template provides:
+
+- Enterprise Linux base (Rocky 9.6)
+- SELinux enforcing with proper SSH policies
+- Cloud-init automated provisioning
+- SSH key-based authentication
+- Kubernetes-ready configuration
+- Automatic security updates
+- Unique identities per clone
+
+### Each cloned VM:
+
+- Gets unique machine-id
+- Generates unique SSH host keys
+- Receives user via cloud-init
+- Configures network automatically
+- Ready for Kubernetes deployment
