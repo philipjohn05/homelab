@@ -86,7 +86,7 @@ systemctl enable qemu-guest-agent
 systemctl enable NetworkManager
 ```
 
-### Step 3. Security Hardenig
+### Step 3. Security Hardening
 
 ```bash
 # Update system
@@ -484,3 +484,4 @@ Template provides:
 - Receives user via cloud-init
 - Configures network automatically
 - Ready for Kubernetes deployment
+
