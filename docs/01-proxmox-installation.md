@@ -246,5 +246,144 @@ mkdir -p /var/lib/apt/lists/partial
 apt clean
 apt update
 ```
+Verify no errors:
+```bash
+apt update
+# Should complete without 401 errors
+```
+
+Configure Storage
+View current storage:
+
+```bash
+# List physical volumes
+pvs
+
+# List volume groups
+vgs
+
+# List logical volumes
+lvs
+
+# Check Proxmox storage
+pvesm status
+```
+
+Add second NVMe drive:
+```bash
+# Wipe second drive
+wipefs -a /dev/nvme1n1
+
+# Create partition
+parted /dev/nvme1n1 --script mklabel gpt
+parted /dev/nvme1n1 --script mkpart primary 0% 100%
+
+# Create LVM
+pvcreate /dev/nvme1n1p1
+vgcreate vg-nvme-storage /dev/nvme1n1p1
+lvcreate -l 95%VG -T vg-nvme-storage/data
+
+# Add to Proxmox
+pvesm add lvmthin vg-nvme-storage \
+    --thinpool data \
+    --content images,rootdir \
+    --nodes pve-homelab
+```
+
+Verfiy Storage:
+```bash
+# Check IP configuration
+ip addr show vmbr0
+
+# Check bridge status
+ip link show vmbr0
+ip link show eno2
+
+# Test connectivity
+ping -c 4 10.0.0.1      # Gateway
+ping -c 4 8.8.8.8       # Internet
+ping -c 4 google.com    # DNS
+```
+
+Optional: Remove Subscription Popup
+```bash
+# Backup original file
+cp /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js \
+   /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js.backup
+
+# Remove subscription check
+sed -i "s/data.status !== 'Active'/false/g" \
+   /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js
+
+# Restart web service
+systemctl restart pveproxy.service
+
+# Clear browser cache and reload page
+```
+
+# Network Architecture
+Network Design
+```bash
+Network: 10.0.0.0/24
+Subnet Mask: 255.255.255.0
+Gateway: 10.0.0.1
+
+Host Allocation:
+├── 10.0.0.1       Router/Gateway
+├── 10.0.0.100     Proxmox VE Host
+├── 10.0.0.11-13   Kubernetes Masters
+├── 10.0.0.21-23   Kubernetes Workers
+└── 10.0.0.200+    DHCP Range (if used)
+```
+Proxmox Network Configuration
+File: /etc/network/interfaces
+
+```bash
+auto lo
+iface lo inet loopback
+
+auto eno2
+iface eno2 inet manual
+
+auto vmbr0
+iface vmbr0 inet static
+    address 10.0.0.100/24
+    gateway 10.0.0.1
+    bridge-ports eno2
+    bridge-stp off
+    bridge-fd 0
+    dns-nameservers 1.1.1.1 8.8.8.8
+```
+
+# System Information
+View system details:
+```bash
+# Proxmox version
+pveversion
+
+# Hostname
+hostname
+
+# IP address
+ip -4 addr show vmbr0
+
+# Storage
+pvesm status
+
+# Memory
+free -h
+
+# CPU
+lscpu | grep "CPU(s)"
+
+# Disk usage
+df -h
+```
+
+
+
+
+
+
 
 
