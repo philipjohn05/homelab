@@ -487,11 +487,15 @@ API Documentation: https://10.0.0.100:8006/pve-docs/api-viewer/
 # Important Directories
 
 VM Configs: /etc/pve/qemu-server/
+
 Storage Config: /etc/pve/storage.cfg
+
 Network Config: /etc/network/interfaces
+
 Cloud-init Snippets: /var/lib/vz/snippets/
+
 ISO Storage: /var/lib/vz/template/iso/
----
+
 
 
 
