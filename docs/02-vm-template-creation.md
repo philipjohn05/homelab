@@ -26,7 +26,7 @@ This guide documents the creation of a Rocky Linux 9.6 VM template for Kubernete
 
 - Proxmox VE 8.x installed and configured
 - Rocky Linux 9.6 minimal ISO uploaded to Proxmox
-- Network connectivity (192.168.0.0/24)
+- Network connectivity (192.168.0.x/24)
 - SSH key pair generated on management workstation
 
 ## Template Creation Process
@@ -338,7 +338,7 @@ qm clone 100 300 --name k8s-node-01 --full
 qm set 300 --cicustom "user=local:snippets/user-config.yaml"
 
 # Configure network (static IP)
-qm set 300 --ipconfig0 "ip=192.168.0.11/24,gw=192.168.0.1"
+qm set 300 --ipconfig0 "ip=192.168.0.x/24,gw=192.168.0.x"
 
 # Configure DNS
 qm set 300 --nameserver 1.1.1.1 --searchdomain local
@@ -349,7 +349,7 @@ qm start 300
 # Wait 60 seconds for cloud-init
 
 # SSH from workstation (no password required)
-ssh rocky@192.168.0.11
+ssh rocky@192.168.0.x
 ```
 
 ### Clone VM via Web UI
@@ -362,8 +362,8 @@ ssh rocky@192.168.0.11
 
 6. Select cloned VM → Cloud-Init tab
 7. IP Config (net0): Static
-   - IPv4/CIDR: 192.168.0.11/24
-   - Gateway: 192.168.0.1
+   - IPv4/CIDR: 192.168.0.x/24
+   - Gateway: 192.168.0.x
 8. DNS: 1.1.1.1
 9. Click: Regenerate Image
 
@@ -484,4 +484,5 @@ Template provides:
 - Receives user via cloud-init
 - Configures network automatically
 - Ready for Kubernetes deployment
+
 
