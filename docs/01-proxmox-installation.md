@@ -64,7 +64,9 @@ Access BIOS: Press F1 during startup
 ### Download Proxmox VE
 
 URL: https://www.proxmox.com/en/downloads
+
 File: proxmox-ve_8.x.iso (approximately 1.2GB)
+
 Version: 8.x (latest stable)
 
 ### Create Bootable USB
@@ -483,6 +485,7 @@ Network Config: /etc/network/interfaces
 Cloud-init Snippets: /var/lib/vz/snippets/
 ISO Storage: /var/lib/vz/template/iso/
 ---
+
 
 
 
