@@ -87,13 +87,19 @@ diskutil eject /dev/diskX
 ```
 
 # Find USB device
+```bash
 lsblk
+```
 
 # Write ISO (replace sdX with your USB device)
+```bash
 sudo dd if=proxmox-ve_8.x.iso of=/dev/sdX bs=4M status=progress
+```
 
 # Sync
+```
 sync
+```
 
 On Windows:
 Use Rufus utility:
@@ -132,8 +138,8 @@ WARNING: This will erase all data on the disk
 
 Filesystem: ext4
 
-Location and Time:
-
+# Location and Time:
+```
 Country: Your Country
 Time zone: Your Timezone
 Keyboard Layout: Your Layout
@@ -142,6 +148,7 @@ Example:
   Country: Australia
   Time zone: Australia/Hobart
   Keyboard: en-us
+```
 
 Administrator Password:
 
@@ -485,6 +492,7 @@ Network Config: /etc/network/interfaces
 Cloud-init Snippets: /var/lib/vz/snippets/
 ISO Storage: /var/lib/vz/template/iso/
 ---
+
 
 
 
