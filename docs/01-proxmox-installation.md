@@ -200,7 +200,7 @@ Via Web Interface:
 4. Click: Upgrade
 
 Via Shell:
-
+```bash
 # Click Shell button in web interface
 
 # Update package lists
@@ -218,4 +218,33 @@ apt autoclean
 
 Configure Repositories
 Remove enterprise repositories (require paid subscription):
+```
+
+```bash
+# Remove misconfigured .sources files
+rm -f /etc/apt/sources.list.d/*.sources
+
+# Create Debian base repositories
+cat > /etc/apt/sources.list <<'EOF'
+# Debian Bookworm (Debian 12)
+deb http://deb.debian.org/debian bookworm main contrib non-free non-free-firmware
+deb http://deb.debian.org/debian bookworm-updates main contrib non-free non-free-firmware
+
+# Debian Security
+deb http://security.debian.org/debian-security bookworm-security main contrib non-free non-free-firmware
+EOF
+
+# Create Proxmox no-subscription repository
+cat > /etc/apt/sources.list.d/pve-no-subscription.list <<'EOF'
+# Proxmox VE No-Subscription Repository
+deb http://download.proxmox.com/debian/pve bookworm pve-no-subscription
+EOF
+
+# Clean and update
+rm -rf /var/lib/apt/lists/*
+mkdir -p /var/lib/apt/lists/partial
+apt clean
+apt update
+```
+
 
