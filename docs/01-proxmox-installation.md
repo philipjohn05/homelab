@@ -380,6 +380,109 @@ lscpu | grep "CPU(s)"
 df -h
 ```
 
+Troubleshooting
+Network Interface Down
+Symptom: Cannot access web interface
+Solution:
+```bash
+# Bring up interfaces
+ip link set eno2 up
+ip link set vmbr0 up
+
+# Restart networking
+systemctl restart networking
+
+# Verify
+ip link show vmbr0
+```
+
+Repository Errors
+Symptom: 401 Unauthorized errors during apt update
+Solution: Follow "Configure Repositories" section above
+DNS Resolution Fails
+Symptom: Can ping IPs but not domain names
+Solution:
+```bash
+# Edit resolv.conf
+nano /etc/resolv.conf
+
+# Add:
+nameserver 1.1.1.1
+nameserver 8.8.8.8
+
+# Make permanent in network config
+nano /etc/network/interfaces
+# Add: dns-nameservers 1.1.1.1 8.8.8.8
+```
+
+Storage Summary
+After configuration:
+```bash
+Total VM Storage: ~800GB
+
+Storage Pools:
+├── local (directory)
+│   ├── Path: /var/lib/vz
+│   ├── Content: ISO, templates, backups
+│   └── Size: ~16GB
+│
+├── local-lvm (NVMe 0)
+│   ├── Type: LVM-thin
+│   ├── Content: VM disks, containers
+│   └── Size: ~349GB
+│
+└── vg-nvme-storage (NVMe 1)
+    ├── Type: LVM-thin
+    ├── Content: VM disks, containers
+    └── Size: ~453GB
+```
+# Next Steps
+
+- Upload Rocky Linux ISO
+- Create VM template
+- Configure cloud-init
+- Deploy Kubernetes nodes
+
+See: 02-vm-template-creation.md
+Reference Information
+
+# Useful Commands
+```bash
+# List VMs
+qm list
+
+# VM status
+qm status <VMID>
+
+# Start VM
+qm start <VMID>
+
+# Stop VM
+qm stop <VMID>
+
+# Clone VM
+qm clone <VMID> <NEW-VMID> --name <NAME> --full
+
+# Storage status
+pvesm status
+
+# Node info
+pvesh get /nodes/pve-homelab/status
+```
+
+# Web Interface URLs
+
+Main Interface: https://10.0.0.100:8006
+API Documentation: https://10.0.0.100:8006/pve-docs/api-viewer/
+
+# Important Directories
+
+VM Configs: /etc/pve/qemu-server/
+Storage Config: /etc/pve/storage.cfg
+Network Config: /etc/network/interfaces
+Cloud-init Snippets: /var/lib/vz/snippets/
+ISO Storage: /var/lib/vz/template/iso/
+---
 
 
 
