@@ -482,6 +482,7 @@ pvesh get /nodes/pve-homelab/status
 # Web Interface URLs
 
 Main Interface: https://10.0.0.100:8006
+
 API Documentation: https://10.0.0.100:8006/pve-docs/api-viewer/
 
 # Important Directories
@@ -495,6 +496,7 @@ Network Config: /etc/network/interfaces
 Cloud-init Snippets: /var/lib/vz/snippets/
 
 ISO Storage: /var/lib/vz/template/iso/
+
 
 
 
