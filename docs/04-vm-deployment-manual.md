@@ -352,3 +352,91 @@ Accessible via SSH keys only
 
 Ready for Kubernetes installation
 
+---
+
+## Additional Quick Reference File
+
+**File: `docs/quick-reference.md`**
+```markdown
+# Quick Reference Guide
+
+## VM Information
+
+| Node | VMID | IP | SSH Command |
+|------|------|----|----|
+| master-01 | 301 | 10.0.0.11 | ssh USER@10.0.0.11 |
+| master-02 | 302 | 10.0.0.12 | ssh USER@10.0.0.12 |
+| master-03 | 303 | 10.0.0.13 | ssh USER@10.0.0.13 |
+| worker-01 | 401 | 10.0.0.21 | ssh USER@10.0.0.21 |
+| worker-02 | 402 | 10.0.0.22 | ssh USER@10.0.0.22 |
+| worker-03 | 403 | 10.0.0.23 | ssh USER@10.0.0.23 |
+
+Replace `USER` with your configured username.
+
+## Common Proxmox Commands
+```bash
+# List all VMs
+qm list
+
+# Start VM
+qm start VMID
+
+# Stop VM
+qm stop VMID
+
+# Reboot VM
+qm reboot VMID
+
+# VM status
+qm status VMID
+
+# VM configuration
+qm config VMID
+
+# Access VM console
+qm terminal VMID
+
+# Delete VM
+qm destroy VMID
+```
+
+Common VM Commands
+
+```bash
+# Check cloud-init status
+cloud-init status
+
+# View cloud-init logs
+sudo cat /var/log/cloud-init.log
+
+# Check SELinux status
+getenforce
+
+# Check network configuration
+ip addr show
+nmcli con show
+
+# Check system resources
+free -h
+df -h
+nproc
+
+# Check hostname
+hostname
+```
+
+Useful Checks
+```bash
+# Test all nodes from workstation
+for ip in 10.0.0.{11..13} 10.0.0.{21..23}; do
+  ssh USER@$ip "hostname && uptime"
+done
+
+# Check SELinux on all nodes
+for ip in 10.0.0.{11..13} 10.0.0.{21..23}; do
+  echo -n "$ip: "
+  ssh USER@$ip "getenforce"
+done
+```
+
+
