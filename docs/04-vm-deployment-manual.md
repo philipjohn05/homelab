@@ -262,4 +262,93 @@ Total: 300GB minimum
 
 
 Verify available storage:
+```bash
+# On Proxmox host
+pvs
+vgs
+lvs
+
+# Check specific storage pool
+vgs local-lvm
+```
+
+Storage Performance
+
+For production use:
+
+
+Masters: Fast storage (SSD/NVMe) recommended
+
+Workers: Can use slower storage for workloads
+
+etcd (on masters): Requires low-latency storage
+
+
+Resource Allocation
+
+Memory Distribution
+
+
+Master nodes: 8GB each (minimum for HA control plane)
+
+Worker 01: 12GB (highest workload capacity)
+
+Worker 02: 10GB (medium workload capacity)
+
+Worker 03: 8GB (light workload capacity)
+
+
+Total RAM allocated: 54GB
+
+CPU Allocation
+
+All nodes: 4 cores each
+
+Total cores: 24 vCPUs
+
+Ensure Proxmox host has sufficient CPU resources (recommended: 32+ cores for host + VMs)
+
+Next Steps
+
+After successful VM deployment:
+
+
+Verify all nodes are accessible via SSH
+
+Check system resources and configuration
+
+Proceed to Kubernetes installation
+
+Configure cluster networking
+
+Deploy workloads
+
+
+See: 05-kubernetes-installation.md (next guide)
+
+Summary
+
+Manual deployment provides:
+
+
+Full control over VM configuration
+
+Easy troubleshooting and verification
+
+No dependency on Terraform or other automation tools
+
+Repeatable process for future deployments
+
+
+Each VM is:
+
+Cloned from tested template
+
+Configured with cloud-init
+
+Running SELinux enforcing
+
+Accessible via SSH keys only
+
+Ready for Kubernetes installation
 
