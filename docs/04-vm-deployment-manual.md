@@ -112,8 +112,11 @@ Expected output:
 ```
 
 Post-Deployment Configuration
+
 Verify SSH Access
+
 From your workstation:
+
 ```bash
 # Test SSH to all nodes
 for ip in 10.0.0.{11..13} 10.0.0.{21..23}; do
@@ -135,4 +138,122 @@ Testing 10.0.0.23: k8s-worker-03 OK
 ```
 
 Set Static IPs (If Cloud-Init Assigned DHCP)
+
 If VMs received DHCP addresses instead of static IPs, configure manually:
+
+```bash
+# SSH to each VM and set static IP
+ssh USER@CURRENT-DHCP-IP
+
+# Find network connection name
+nmcli con show
+
+# Set static IP (replace connection name and IP as needed)
+sudo nmcli con mod "Wired connection 1" ipv4.addresses 10.0.0.11/24
+sudo nmcli con mod "Wired connection 1" ipv4.gateway 10.0.0.1
+sudo nmcli con mod "Wired connection 1" ipv4.dns 1.1.1.1
+sudo nmcli con mod "Wired connection 1" ipv4.method manual
+sudo nmcli con up "Wired connection 1"
+
+# Disable cloud-init network management
+sudo bash -c 'cat > /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg << EOF
+network: {config: disabled}
+EOF'
+```
+
+Repeat for all VMs with their respective IP addresses.
+
+Verify Cloud-Init Completion
+
+SSH to each node:
+```bash
+ssh USER@10.0.0.11
+
+# Check cloud-init status
+cloud-init status
+
+# Should show: status: done
+
+# Check system configuration
+hostname            # Should show: k8s-master-01
+getenforce          # Should show: Enforcing
+free -h             # Check memory
+df -h               # Check disk space
+```
+
+Troubleshooting
+
+VMs Not Starting
+
+Check VM console in Proxmox UI:
+```bash
+1. Select VM in left sidebar
+2. Click Console
+3. Look for boot errors
+```
+
+Check VM logs:
+```bash
+# On Proxmox host
+journalctl -u pve* --since "10 minutes ago" | grep -i error
+```
+
+Cloud-Init Not Running
+
+Check cloud-init logs:
+```bash
+# On the VM
+sudo cat /var/log/cloud-init.log
+sudo cat /var/log/cloud-init-output.log
+```
+
+Force cloud-init to re-run:
+```bash
+sudo cloud-init clean
+sudo reboot
+```
+
+SSH Access Fails
+
+Verify SSH service is running:
+```bash
+# Check from Proxmox console
+systemctl status sshd
+```
+
+Check SSH key was installed:
+```bash
+cat ~/.ssh/authorized_keys
+# Should show your public key
+```
+
+Verify password authentication is disabled:
+```bash
+sudo sshd -T | grep passwordauthentication
+# Should show: passwordauthentication no
+```
+
+Static IP Not Applied
+
+Check network configuration:
+```bash
+# View current IP
+ip addr show
+
+# Check NetworkManager connection
+nmcli con show
+
+# Restart network
+sudo nmcli con down "Wired connection 1"
+sudo nmcli con up "Wired connection 1"
+```
+
+Storage Considerations
+Disk Space Requirements
+Total storage needed:
+
+Master nodes: 3 × 50GB = 150GB
+Worker nodes: 3 × 50GB = 150GB
+Total: 300GB minimum
+
+Verify available storage:
