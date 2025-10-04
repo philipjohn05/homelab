@@ -48,3 +48,91 @@ for i in 1 2 3; do
   qm cloudinit update 30$i
 done
 ```
+
+Replace TEMPLATE_ID with your template VM ID (example: 9000)
+
+Step 2: Clone Template for Worker Nodes
+```bash
+# Deploy worker 01 (12GB RAM)
+qm clone TEMPLATE_ID 401 --name k8s-worker-01 --full --storage local-lvm
+qm set 401 --cores 4 --memory 12288
+qm set 401 --cicustom "user=local:snippets/user-config.yaml"
+qm set 401 --ipconfig0 "ip=10.0.0.21/24,gw=10.0.0.1"
+qm set 401 --nameserver 1.1.1.1
+qm cloudinit update 401
+
+# Deploy worker 02 (10GB RAM)
+qm clone TEMPLATE_ID 402 --name k8s-worker-02 --full --storage local-lvm
+qm set 402 --cores 4 --memory 10240
+qm set 402 --cicustom "user=local:snippets/user-config.yaml"
+qm set 402 --ipconfig0 "ip=10.0.0.22/24,gw=10.0.0.1"
+qm set 402 --nameserver 1.1.1.1
+qm cloudinit update 402
+
+# Deploy worker 03 (8GB RAM)
+qm clone TEMPLATE_ID 403 --name k8s-worker-03 --full --storage local-lvm
+qm set 403 --cores 4 --memory 8192
+qm set 403 --cicustom "user=local:snippets/user-config.yaml"
+qm set 403 --ipconfig0 "ip=10.0.0.23/24,gw=10.0.0.1"
+qm set 403 --nameserver 1.1.1.1
+qm cloudinit update 403
+```
+
+Step 3: Start All VMs
+
+```bash
+# Start all VMs
+echo "Starting all VMs..."
+for vmid in 301 302 303 401 402 403; do
+  qm start $vmid
+done
+
+# Wait for boot and cloud-init
+echo "Waiting 90 seconds for cloud-init to complete..."
+sleep 90
+
+# Check VM status
+qm list
+```
+
+Step 4: Verify VMs are Running
+```bash
+# Check all VMs are running
+qm list | grep -E "301|302|303|401|402|403"
+```
+
+Expected output:
+```bash
+301 k8s-master-01  running  8192   50.00
+302 k8s-master-02  running  8192   50.00
+303 k8s-master-03  running  8192   50.00
+401 k8s-worker-01  running  12288  50.00
+402 k8s-worker-02  running  10240  50.00
+403 k8s-worker-03  running  8192   50.00
+```
+
+Post-Deployment Configuration
+Verify SSH Access
+From your workstation:
+```bash
+# Test SSH to all nodes
+for ip in 10.0.0.{11..13} 10.0.0.{21..23}; do
+  echo -n "Testing $ip: "
+  ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no USER@$ip "hostname" 2>/dev/null && echo "OK" || echo "FAILED"
+done
+```
+
+Replace USER with your configured username (example: rocky)
+
+Expected output:
+```bash
+Testing 10.0.0.11: k8s-master-01 OK
+Testing 10.0.0.12: k8s-master-02 OK
+Testing 10.0.0.13: k8s-master-03 OK
+Testing 10.0.0.21: k8s-worker-01 OK
+Testing 10.0.0.22: k8s-worker-02 OK
+Testing 10.0.0.23: k8s-worker-03 OK
+```
+
+Set Static IPs (If Cloud-Init Assigned DHCP)
+If VMs received DHCP addresses instead of static IPs, configure manually:
