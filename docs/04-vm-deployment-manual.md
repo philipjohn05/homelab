@@ -249,11 +249,17 @@ sudo nmcli con up "Wired connection 1"
 ```
 
 Storage Considerations
+
 Disk Space Requirements
+
 Total storage needed:
 
 Master nodes: 3 × 50GB = 150GB
+
 Worker nodes: 3 × 50GB = 150GB
+
 Total: 300GB minimum
 
+
 Verify available storage:
+
