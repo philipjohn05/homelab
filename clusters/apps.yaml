@@ -12,5 +12,5 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: ./apps/lothbrok
+  path: ./apps/lothbrok/linkding
   prune: true
