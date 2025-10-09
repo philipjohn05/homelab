@@ -1,0 +1,4 @@
+creation_rules:
+  - path_regex: .*.yaml
+    encrypted_regex: '^(data|stringData)$'
+    age: age1u9v9s8xxz66e77wr04dqr0zgpw5vs3j56njm45jp65fkafgasfrqsf8t2q  # Replace with YOUR public key
