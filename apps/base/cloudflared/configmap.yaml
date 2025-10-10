@@ -12,4 +12,4 @@ data:
         service: http://linkding.default.svc.cluster.local:9090
       - hostname: "*.pjfaraon.net"
         service: http://traefik.traefik.svc.cluster.local:80
-    - service: http_status:404
+      - service: http_status:404
