@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloudflared-config
+  namespace: cloudflared
+data:
+  config.yaml: |
+    # Serves the metrics server under /metrics and the readiness server under /ready
+    metrics: 0.0.0.0:2000
+    no-autoupdate: true
+
+    # Ingress rules - routes traffic from Cloudflare to your services
+    ingress:
+      # Linkding - replace with your actual domain
+      - hostname: linkding.pjfaraon.net
+        service: http://linkding.default.svc.cluster.local:9090
+      
+      # Wildcard - route other apps to Traefik
+      - hostname: "*.pjfaraon.net"
+        service: http://traefik.traefik.svc.cluster.local:80
+      
+      # Catch-all 404
+    - service: http_status:404
