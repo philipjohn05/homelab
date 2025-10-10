@@ -4,4 +4,4 @@ resources:
   - namespace.yaml
   - helmrelease.yaml
   - azure-credentials-secret.enc.yaml
-  - azure-secretstore.yaml
+  # - azure-secretstore.yaml
