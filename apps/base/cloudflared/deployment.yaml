@@ -23,6 +23,8 @@ spec:
             - --config
             - /etc/cloudflared/config.yaml
             - run
+            - --token
+            - $(TUNNEL_TOKEN)
           env:
             - name: TUNNEL_TOKEN
               valueFrom:
@@ -48,5 +50,5 @@ spec:
             periodSeconds: 10
       volumes:
         - name: config
-          secret:
-            secretName: cloudflared-config # From SOPS
+          configMap:
+            name: cloudflared-config # From SOPS
