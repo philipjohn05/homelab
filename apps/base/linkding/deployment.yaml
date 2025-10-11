@@ -21,19 +21,23 @@ spec:
       containers:
         - name: linkding
           image: sissbruecker/linkding:1.39.1
-
           securityContext:
             allowPrivilegeEscalation: false
-
-          # envFrom:
-          #   - configMapRef:
-          #       name: linkding-configmap
-          #   - secretRef:
-          #       name: linkding-container-env
-
           ports:
             - containerPort: 9090
               protocol: TCP
+
+          env:
+            - name: LD_SUPERUSER_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: linkding-secrets
+                  key: LD_SUPERUSER_NAME
+            - name: LD_SUPERUSER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: linkding-secrets
+                  key: LD_SUPERUSER_PASSWORD
 
           volumeMounts:
             - name: linkding-data
