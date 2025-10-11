@@ -15,10 +15,11 @@ spec:
     secretRef:
       name: sops-age
 ---
+# Phase 1: Create ExternalSecret (no substitution needed)
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: infrastructure-config
+  name: infrastructure-secrets
   namespace: flux-system
 spec:
   interval: 10m
@@ -27,7 +28,27 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: ./infrastructure/config/lothbrok
+  path: ./infrastructure/config/lothbrok/secrets
+  prune: true
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
+---
+# Phase 2: Create IPAddressPools using the secret from Phase 1
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: infrastructure-config
+  namespace: flux-system
+spec:
+  interval: 10m
+  dependsOn:
+    - name: infrastructure-secrets
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./infrastructure/config/lothbrok/resources
   prune: true
   postBuild:
     substituteFrom:
