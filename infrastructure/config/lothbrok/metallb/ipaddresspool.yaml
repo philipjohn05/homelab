@@ -1,0 +1,56 @@
+# Ingress Pool - For ingress controllers (Traefik, Nginx)
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: ingress-pool
+  namespace: metallb-system
+spec:
+  addresses:
+    - ${INGRESS_POOL}
+  autoAssign: false
+---
+# Services Pool - For general applications (default)
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: services-pool
+  namespace: metallb-system
+spec:
+  addresses:
+    - ${SERVICES_POOL}
+  autoAssign: true
+---
+# Database Pool - For databases needing external access
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: database-pool
+  namespace: metallb-system
+spec:
+  addresses:
+    - ${DATABASE_POOL}
+  autoAssign: false
+---
+# Reserved Pool - For testing and future services
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: reserved-pool
+  namespace: metallb-system
+spec:
+  addresses:
+    - ${RESERVED_POOL}
+  autoAssign: false
+---
+# L2 Advertisement for all pools
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: l2-advertisement
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+    - ingress-pool
+    - services-pool
+    - database-pool
+    - reserved-pool
