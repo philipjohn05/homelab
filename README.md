@@ -83,9 +83,8 @@ Running on **Proxmox VE 8.x** as the hypervisor layer:
 | talos-worker-03 | Worker | 4 | 8 GB | 100 GB | Application workloads |
 
 **Physical Hardware:**
-- Proxmox Host: [Your specs - e.g., Dell R720, 128GB RAM, 2TB SSD]
-- Network: [Your network setup]
-- Storage: [Your storage solution]
+- Proxmox Host: ThinkCentre M90T, 48GM RAM & GPU 1660 Super
+- Storage: local storage
 
 ---
 
