@@ -124,3 +124,46 @@ Everything needed to run the cluster and deploy applications:
 | <img width="32" src="https://avatars.githubusercontent.com/u/69524162"> | [CloudNativePG](https://cloudnative-pg.io/) | PostgreSQL operator for Kubernetes. Production-grade database management |
 
 ---
+
+🛠️ Technology Stack
+Core Infrastructure
+	•	Hypervisor: Proxmox VE 8.x
+	•	OS: Talos Linux 1.11.1
+	•	Kubernetes: v1.34.0
+	•	CNI: Flannel (via Talos)
+	•	HA: kube-vip
+GitOps & Automation
+	•	GitOps: FluxCD v2
+	•	Secrets Management: External Secrets Operator + Azure Key Vault
+	•	Encryption: SOPS (Mozilla)
+Networking
+	•	LoadBalancer: MetalLB 0.14.8 (L2 mode)
+	•	Ingress Controller: Traefik 32.x
+	•	External Access: Cloudflare Tunnel
+	•	Network Policy: (planned - Cilium)
+Monitoring (Planned)
+	•	Metrics: Prometheus
+	•	Visualization: Grafana
+	•	Logging: (TBD - Loki)
+Data (Planned)
+	•	Database Operator: CloudNativePG
+	•	Backup: Velero
+🗺️ Roadmap
+✅ Completed
+	•	Talos Linux cluster (6 nodes, HA)
+	•	FluxCD GitOps setup
+	•	External Secrets integration
+	•	MetalLB LoadBalancer (4 IP pools)
+	•	Traefik ingress controller
+	•	Cloudflare Tunnel
+	•	First applications (Linkding, Cloudflared)
+🚧 In Progress
+	•	Prometheus + Grafana monitoring stack
+	•	CloudNativePG for PostgreSQL
+📋 Planned
+	•	Cert-manager for automatic SSL
+	•	Velero for cluster backups
+	•	Cilium CNI (replace Flannel)
+	•	Network policies
+	•	External DNS
+	•	More self-hosted applications
