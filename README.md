@@ -103,7 +103,7 @@ Everything needed to run the cluster and deploy applications:
 
 | Logo | Name | Description |
 |------|------|-------------|
-| <img width="32" src="https://www.siderolabs.com/images/talos-logo.svg"> | [Talos Linux](https://www.talos.dev/) | Immutable, API-driven Kubernetes OS. No SSH, minimal attack surface, production-grade security |
+| <img width="32" src="https://avatars.githubusercontent.com/u/47601702"> | [Talos Linux](https://www.talos.dev/) | Immutable, API-driven Kubernetes OS. No SSH, minimal attack surface, production-grade security |
 | <img width="32" src="https://avatars.githubusercontent.com/u/52158677"> | [FluxCD](https://fluxcd.io/) | GitOps operator. Watches Git, applies changes automatically. 3-phase pipeline for dependency management |
 | <img width="32" src="https://external-secrets.io/latest/pictures/eso-logo-large.png"> | [External Secrets Operator](https://external-secrets.io/) | Syncs secrets from Azure Key Vault to Kubernetes. Zero secrets in Git. ~2,880 API calls/month = $0.01 |
 | <img width="32" src="https://avatars.githubusercontent.com/u/60239468"> | [MetalLB](https://metallb.universe.tf/) | LoadBalancer implementation for bare-metal. L2 mode. 4 IP pools: ingress, services, database, reserved |
