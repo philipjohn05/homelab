@@ -97,7 +97,7 @@ Running on **Proxmox VE 8.x** as the hypervisor layer:
 
 | Logo | Name | Description |
 |------|------|-------------|
-| <img width="32" src="https://avatars.githubusercontent.com/u/134059324"> | [Linkding](https://github.com/linkding-io/linkding) | Self-hosted bookmark manager with tagging and full-text search |
+| <img width="32" src="https://avatars.githubusercontent.com/u/134059324"> | [Linkding](https://github.com/sissbruecker/linkding) | Self-hosted bookmark manager with tagging and full-text search |
 
 ### 🔧 Infrastructure
 
