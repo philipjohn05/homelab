@@ -54,10 +54,13 @@ I run a **single 6-node cluster** with high availability:
 
 Phase 1: infrastructure
 ↓ (deploys controllers)
+
 Phase 2: infrastructure-secrets
 ↓ (syncs from Azure Key Vault)
+
 Phase 3: infrastructure-config
 ↓ (applies configs with substitution)
+
 Result: Fully automated, zero manual intervention
 
 **Why 3 phases?**
