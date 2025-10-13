@@ -75,9 +75,9 @@ Running on **Proxmox VE 8.x** as the hypervisor layer:
 
 | Node | Role | vCPU | RAM | Disk | Purpose |
 |------|------|------|-----|------|---------|
-| talos-cp-01 | Control Plane | 2 | 4 GB | 32 GB | etcd, kube-apiserver, scheduler, controller-manager |
-| talos-cp-02 | Control Plane | 2 | 4 GB | 32 GB | etcd, kube-apiserver, scheduler, controller-manager |
-| talos-cp-03 | Control Plane | 2 | 4 GB | 32 GB | etcd, kube-apiserver, scheduler, controller-manager |
+| talos-cp-01 | Control Plane | 4 | 6 GB | 32 GB | etcd, kube-apiserver, scheduler, controller-manager |
+| talos-cp-02 | Control Plane | 4 | 6 GB | 32 GB | etcd, kube-apiserver, scheduler, controller-manager |
+| talos-cp-03 | Control Plane | 4 | 6 GB | 32 GB | etcd, kube-apiserver, scheduler, controller-manager |
 | talos-worker-01 | Worker | 4 | 8 GB | 100 GB | Application workloads |
 | talos-worker-02 | Worker | 4 | 8 GB | 100 GB | Application workloads |
 | talos-worker-03 | Worker | 4 | 8 GB | 100 GB | Application workloads |
