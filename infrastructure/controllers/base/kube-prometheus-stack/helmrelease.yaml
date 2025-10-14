@@ -48,7 +48,7 @@ spec:
       prometheusSpec:
         retention: 30d
 
-        # Pod security context
+        # Pod-level security context
         securityContext:
           runAsUser: 1000
           runAsGroup: 2000
@@ -61,9 +61,16 @@ spec:
           fsGroup: 2000
           runAsNonRoot: true
 
-        # CRITICAL: Allow writes to mounted volumes
-        # Prometheus needs to write to /prometheus/ directory
-        enableRemoteWriteReceiver: false
+        # Container-level security context override
+        # This is the key addition - overrides chart's default
+        containers:
+          - name: prometheus
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop:
+                  - ALL
+              readOnlyRootFilesystem: false # ← CRITICAL: Override chart default
 
         # Storage
         storageSpec:
@@ -82,11 +89,6 @@ spec:
           limits:
             cpu: 1000m
             memory: 2Gi
-
-    # Global security settings
-    global:
-      rbac:
-        create: true
 
     # Grafana configuration
     grafana:
@@ -133,6 +135,7 @@ spec:
           runAsGroup: 2000
           fsGroup: 2000
           runAsNonRoot: true
+
         storage:
           volumeClaimTemplate:
             spec:
@@ -141,12 +144,15 @@ spec:
                 requests:
                   storage: 10Gi
 
+    # Node Exporter
     nodeExporter:
       enabled: true
 
+    # Kube State Metrics
     kubeStateMetrics:
       enabled: true
 
+    # Default Rules
     defaultRules:
       create: true
       rules:
