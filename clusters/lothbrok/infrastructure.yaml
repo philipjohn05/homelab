@@ -35,6 +35,27 @@ spec:
     secretRef:
       name: sops-age
 ---
+# Monitoring Secrets
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: infrastructure-monitoring-secrets
+  namespace: flux-system
+spec:
+  interval: 10m
+  dependsOn:
+    - name: infrastructure
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./infrastructure/config/lothbrok/monitoring
+  prune: true
+  wait: true
+  timeout: 5m
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
 # Phase 2: Create IPAddressPools using the secret from Phase 1
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -45,6 +66,7 @@ spec:
   interval: 10m
   dependsOn:
     - name: infrastructure-secrets
+    - name: infrastructure-monitoring-secrets
   sourceRef:
     kind: GitRepository
     name: flux-system
@@ -54,6 +76,9 @@ spec:
     substituteFrom:
       - kind: Secret
         name: metallb-ip-pools
+        optional: false
+      - kind: Secret
+        name: monitoring-secrets
         optional: false
   decryption:
     provider: sops
