@@ -44,24 +44,26 @@ spec:
         target:
           kind: PrometheusRule
   values:
-    # Prometheus configuration
     prometheus:
       prometheusSpec:
         retention: 30d
 
-        # Security context - fixes permission denied on Talos
+        # Pod security context
         securityContext:
           runAsUser: 1000
           runAsGroup: 2000
           fsGroup: 2000
           runAsNonRoot: true
 
-        # Pod security context
         podSecurityContext:
           runAsUser: 1000
           runAsGroup: 2000
           fsGroup: 2000
           runAsNonRoot: true
+
+        # CRITICAL: Allow writes to mounted volumes
+        # Prometheus needs to write to /prometheus/ directory
+        enableRemoteWriteReceiver: false
 
         # Storage
         storageSpec:
@@ -81,18 +83,21 @@ spec:
             cpu: 1000m
             memory: 2Gi
 
+    # Global security settings
+    global:
+      rbac:
+        create: true
+
     # Grafana configuration
     grafana:
       enabled: true
       adminPassword: ${GRAFANA_ADMIN_PASSWORD}
 
-      # Security context for Grafana too
       securityContext:
         runAsUser: 472
         runAsGroup: 472
         fsGroup: 472
 
-      # Grafana settings
       grafana.ini:
         server:
           root_url: https://grafana.pjfaraon.net
@@ -101,19 +106,16 @@ spec:
           cookie_secure: true
           cookie_samesite: lax
 
-      # Ingress configuration
       ingress:
         enabled: true
         ingressClassName: traefik
         hosts:
           - grafana.pjfaraon.net
 
-      # Persistence
       persistence:
         enabled: true
         size: 10Gi
 
-      # Resources
       resources:
         requests:
           cpu: 100m
@@ -122,18 +124,15 @@ spec:
           cpu: 500m
           memory: 512Mi
 
-    # AlertManager configuration
+    # AlertManager
     alertmanager:
       enabled: true
       alertmanagerSpec:
-        # Security context for AlertManager
         securityContext:
           runAsUser: 1000
           runAsGroup: 2000
           fsGroup: 2000
           runAsNonRoot: true
-
-        # Storage
         storage:
           volumeClaimTemplate:
             spec:
@@ -142,20 +141,17 @@ spec:
                 requests:
                   storage: 10Gi
 
-    # Node exporter
     nodeExporter:
       enabled: true
 
-    # Kube-state-metrics
     kubeStateMetrics:
       enabled: true
 
-    # Default ServiceMonitors and rules
     defaultRules:
       create: true
       rules:
         alertmanager: true
-        etcd: false # Not exposed in Talos by default
+        etcd: false
         configReloaders: true
         general: true
         k8s: true
