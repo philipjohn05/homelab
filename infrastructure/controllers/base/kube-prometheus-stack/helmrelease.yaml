@@ -61,21 +61,11 @@ spec:
           fsGroup: 2000
           runAsNonRoot: true
 
-        # Container-level security context override
-        # This is the key addition - overrides chart's default
-        containers:
-          - name: prometheus
-            securityContext:
-              allowPrivilegeEscalation: false
-              capabilities:
-                drop:
-                  - ALL
-              readOnlyRootFilesystem: false # ← CRITICAL: Override chart default
-
         # Storage
         storageSpec:
           volumeClaimTemplate:
             spec:
+              storageClassName: local-path
               accessModes: ["ReadWriteOnce"]
               resources:
                 requests:
