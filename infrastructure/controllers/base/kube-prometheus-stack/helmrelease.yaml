@@ -18,7 +18,7 @@ spec:
   chart:
     spec:
       chart: kube-prometheus-stack
-      version: "66.2.2"
+      version: "58.x"
       sourceRef:
         kind: HelmRepository
         name: prometheus-community
@@ -59,17 +59,17 @@ spec:
         retention: 30d
 
         # Pod-level security context
-        securityContext:
-          runAsUser: 65534
-          runAsGroup: 65534
-          fsGroup: 65534
-          runAsNonRoot: true
-
-        podSecurityContext:
-          runAsUser: 65534
-          runAsGroup: 65534
-          fsGroup: 65534
-          runAsNonRoot: true
+        # securityContext:
+        #   runAsUser: 65534
+        #   runAsGroup: 65534
+        #   fsGroup: 65534
+        #   runAsNonRoot: true
+        #
+        # podSecurityContext:
+        #   runAsUser: 65534
+        #   runAsGroup: 65534
+        #   fsGroup: 65534
+        #   runAsNonRoot: true
 
         # Storage
         storageSpec:
@@ -146,7 +146,7 @@ spec:
                 requests:
                   storage: 10Gi
 
-    # Node Exporter - FIXED
+    # Node Exporter j- FIXED
     nodeExporter:
       enabled: true
       hostNetwork: true # ← ADDED
