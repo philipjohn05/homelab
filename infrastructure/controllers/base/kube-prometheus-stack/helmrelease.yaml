@@ -44,6 +44,10 @@ spec:
         target:
           kind: PrometheusRule
   values:
+    prometheusOperator:
+      admissionWebhooks:
+        enabled: false
+
     prometheus:
       prometheusSpec:
         retention: 30d
