@@ -44,10 +44,12 @@ spec:
         target:
           kind: PrometheusRule
   values:
+    # Disable admission webhooks
     prometheusOperator:
       admissionWebhooks:
         enabled: false
 
+    # Prometheus configuration
     prometheus:
       prometheusSpec:
         retention: 30d
@@ -110,6 +112,7 @@ spec:
 
       persistence:
         enabled: true
+        storageClassName: local-path # ← ADDED
         size: 10Gi
 
       resources:
@@ -134,14 +137,18 @@ spec:
           volumeClaimTemplate:
             spec:
               storageClassName: local-path
-              avolumeClaimTemplateccessModes: ["ReadWriteOnce"]
+              accessModes: ["ReadWriteOnce"] # ← FIXED TYPO
               resources:
                 requests:
                   storage: 10Gi
 
-    # Node Exporter
+    # Node Exporter - FIXED
     nodeExporter:
       enabled: true
+      hostNetwork: true # ← ADDED
+      hostPID: true # ← ADDED
+      tolerations: # ← ADDED
+        - operator: Exists
 
     # Kube State Metrics
     kubeStateMetrics:
