@@ -133,7 +133,8 @@ spec:
         storage:
           volumeClaimTemplate:
             spec:
-              accessModes: ["ReadWriteOnce"]
+              storageClassName: local-path
+              avolumeClaimTemplateccessModes: ["ReadWriteOnce"]
               resources:
                 requests:
                   storage: 10Gi
