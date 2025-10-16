@@ -24,11 +24,6 @@ spec:
       containers:
         - name: linkding
           image: sissbruecker/linkding:1.39.1
-          env:
-            - name: LINKDING_HOST
-              value: "0.0.0.0"
-            - name: LINKDING_PORT
-              value: "8008"
           securityContext:
             allowPrivilegeEscalation: false
             runAsNonRoot: true
@@ -53,7 +48,10 @@ spec:
                 secretKeyRef:
                   name: linkding-secrets
                   key: LD_SUPERUSER_PASSWORD
-
+            - name: LINKDING_HOST
+              value: "0.0.0.0"
+            - name: LINKDING_PORT
+              value: "8008"
           volumeMounts:
             - name: linkding-data
               mountPath: /etc/linkding/data
