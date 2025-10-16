@@ -24,6 +24,9 @@ spec:
       containers:
         - name: linkding
           image: sissbruecker/linkding:1.39.1
+          args:
+            - "--host=0.0.0.0"
+            - "--port=8008"
           securityContext:
             allowPrivilegeEscalation: false
             runAsNonRoot: true
