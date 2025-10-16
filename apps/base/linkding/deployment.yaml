@@ -24,12 +24,12 @@ spec:
           securityContext:
             allowPrivilegeEscalation: false
           ports:
-            - containerPort: 9090
+            - containerPort: 8008
               protocol: TCP
 
           env:
             - name: LD_SUPERUSER_NAME
-              valueFrom:
+              valueFrom::
                 secretKeyRef:
                   name: linkding-secrets
                   key: LD_SUPERUSER_NAME
