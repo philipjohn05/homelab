@@ -1,3 +1,24 @@
+# Phase 1: Monitoring Secrets (no dependencies)
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: infrastructure-monitoring-secrets
+  namespace: flux-system
+spec:
+  interval: 10m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./infrastructure/config/lothbrok/monitoring
+  prune: true
+  wait: true
+  timeout: 5m
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
+---
+# Phase 2: Infrastructure controllers (depends on monitoring secrets)
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
@@ -10,12 +31,22 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
+
+  dependsOn:
+    - name: infrastructure-monitoring-secrets
+
+  postBuild:
+    substituteFrom:
+      - kind: Secret
+        name: monitoring-secrets
+        optional: false
+
   decryption:
     provider: sops
     secretRef:
       name: sops-age
 ---
-# Phase 1: Create ExternalSecret (no substitution needed)
+# Phase 3: Other secrets (depends on infrastructure controllers)
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
@@ -35,29 +66,7 @@ spec:
     secretRef:
       name: sops-age
 ---
-# Monitoring Secrets
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: infrastructure-monitoring-secrets
-  namespace: flux-system
-spec:
-  interval: 10m
-  dependsOn:
-    - name: infrastructure
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  path: ./infrastructure/config/lothbrok/monitoring
-  prune: true
-  wait: true
-  timeout: 5m
-  decryption:
-    provider: sops
-    secretRef:
-      name: sops-age
----
-# Phase 2: Create IPAddressPools using the secret from Phase 1
+# Phase 4: Resources configuration (depends on secrets)
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
