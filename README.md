@@ -113,7 +113,7 @@ Everything needed to run the cluster and deploy applications:
 | <img width="32" src="https://avatars.githubusercontent.com/u/314135"> | [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/) | Zero-trust access without port forwarding. Secure tunnel from cluster to Cloudflare edge |
 | <img width="32" src="https://avatars.githubusercontent.com/u/47602533"> | [SOPS](https://github.com/mozilla/sops) | Encrypted secrets in Git. Used for non-dynamic sensitive configs |
 
-### 📊 Monitoring (Coming Soon)
+### 📊 Monitoring
 
 | Logo | Name | Description |
 |------|------|-------------|
