@@ -18,7 +18,25 @@ spec:
     secretRef:
       name: sops-age
 ---
-# Phase 2: Infrastructure controllers (depends on monitoring secrets)
+# Phase 2: Other secrets (no dependencies - runs in parallel with monitoring)
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: infrastructure-secrets
+  namespace: flux-system
+spec:
+  interval: 10m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./infrastructure/config/lothbrok/secrets
+  prune: true
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
+---
+# Phase 3: Infrastructure controllers (depends on secrets being ready)
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
@@ -34,7 +52,9 @@ spec:
 
   dependsOn:
     - name: infrastructure-monitoring-secrets
+    - name: infrastructure-secrets
 
+  # Variable substitution for Grafana password
   postBuild:
     substituteFrom:
       - kind: Secret
@@ -46,27 +66,7 @@ spec:
     secretRef:
       name: sops-age
 ---
-# Phase 3: Other secrets (depends on infrastructure controllers)
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: infrastructure-secrets
-  namespace: flux-system
-spec:
-  interval: 10m
-  dependsOn:
-    - name: infrastructure
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  path: ./infrastructure/config/lothbrok/secrets
-  prune: true
-  decryption:
-    provider: sops
-    secretRef:
-      name: sops-age
----
-# Phase 4: Resources configuration (depends on secrets)
+# Phase 4: Resources configuration (depends on everything else)
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
@@ -75,8 +75,7 @@ metadata:
 spec:
   interval: 10m
   dependsOn:
-    - name: infrastructure-secrets
-    - name: infrastructure-monitoring-secrets
+    - name: infrastructure
   sourceRef:
     kind: GitRepository
     name: flux-system
