@@ -4,8 +4,8 @@ metadata:
   name: linkding
 spec:
   ports:
-    - port: 8008
-      targetPort: 8008
+    - port: 9090
+      targetPort: 9090
   selector:
     app: linkding
   type: ClusterIP

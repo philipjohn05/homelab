@@ -34,7 +34,7 @@ spec:
               type: RuntimeDefault
 
           ports:
-            - containerPort: 8008
+            - containerPort: 9090
               protocol: TCP
 
           env:
@@ -48,10 +48,6 @@ spec:
                 secretKeyRef:
                   name: linkding-secrets
                   key: LD_SUPERUSER_PASSWORD
-            - name: LINKDING_HOST
-              value: "0.0.0.0"
-            - name: LINKDING_PORT
-              value: "8008"
           volumeMounts:
             - name: linkding-data
               mountPath: /etc/linkding/data
