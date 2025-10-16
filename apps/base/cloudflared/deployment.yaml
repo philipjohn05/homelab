@@ -20,7 +20,6 @@ spec:
           image: cloudflare/cloudflared:2025.5.0
           securityContext:
             allowPrivilegeEscalation: false
-            runAsNonRoot: true
             capabilities:
               drop:
                 - ALL
