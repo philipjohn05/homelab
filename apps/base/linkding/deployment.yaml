@@ -14,6 +14,7 @@ spec:
         policy-type: "app"
     spec:
       securityContext:
+        runAsNonRoot: true
         runAsUser: 33
         runAsGroup: 33
         fsGroup: 33
@@ -23,13 +24,14 @@ spec:
           image: sissbruecker/linkding:1.39.1
           securityContext:
             allowPrivilegeEscalation: false
+            runAsNonRoot: true
           ports:
             - containerPort: 8008
               protocol: TCP
 
           env:
             - name: LD_SUPERUSER_NAME
-              valueFrom::
+              valueFrom:
                 secretKeyRef:
                   name: linkding-secrets
                   key: LD_SUPERUSER_NAME
