@@ -5,3 +5,4 @@ resources:
   - ../base/metallb
   - ../base/traefik
   - ../base/kube-prometheus-stack
+  - ../base/cloudnative-pg

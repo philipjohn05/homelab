@@ -1,0 +1,65 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: cloudnative-pg
+  namespace: flux-system
+spec:
+  interval: 24h
+  url: https://cloudnative-pg.github.io/charts
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: cloudnative-pg
+  namespace: flux-system
+spec:
+  interval: 30m
+  timeout: 10m
+  chart:
+    spec:
+      chart: cloudnative-pg
+      version: "0.22.x"
+      sourceRef:
+        kind: HelmRepository
+        name: cloudnative-pg
+        namespace: flux-system
+      interval: 12h
+  releaseName: cloudnative-pg
+  targetNamespace: cnpg-system
+  install:
+    createNamespace: false
+    crds: Create
+  upgrade:
+    crds: CreateReplace
+  values:
+    # Monitoring integration
+    monitoring:
+      podMonitorEnabled: true
+      grafanaDashboard:
+        create: true
+    
+    # Config
+    config:
+      data:
+        INHERITED_ANNOTATIONS: "prometheus.io/*"
+        INHERITED_LABELS: "app.kubernetes.io/*"
+    
+    # Resources
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    
+    # Security context
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+      capabilities:
+        drop:
+          - ALL
