@@ -82,7 +82,8 @@ spec:
           - grafana.pjfaraon.net
       persistence:
         enabled: true
-        storageClassName: local-path
+        storageClassName: nfs-csi
+        accessModes: ["ReadWriteMany"]
         size: 10Gi
 
     alertmanager:
