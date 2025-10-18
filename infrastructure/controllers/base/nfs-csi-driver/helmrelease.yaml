@@ -1,0 +1,78 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: csi-driver-nfs
+  namespace: flux-system
+spec:
+  interval: 24h
+  url: https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: csi-driver-nfs
+  namespace: flux-system
+spec:
+  interval: 30m
+  timeout: 10m
+  chart:
+    spec:
+      chart: csi-driver-nfs
+      version: "v4.9.x"
+      sourceRef:
+        kind: HelmRepository
+        name: csi-driver-nfs
+        namespace: flux-system
+      interval: 12h
+  releaseName: csi-driver-nfs
+  targetNamespace: nfs-csi-driver
+  install:
+    createNamespace: false
+    crds: Skip
+  upgrade:
+    crds: Skip
+  values:
+    # Controller (manages provisioning)
+    controller:
+      replicas: 2
+      resources:
+        requests:
+          cpu: 10m
+          memory: 20Mi
+        limits:
+          cpu: 200m
+          memory: 200Mi
+
+    # Node (mounts volumes on each node)
+    node:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 20Mi
+        limits:
+          cpu: 100m
+          memory: 100Mi
+
+    # Feature gates
+    feature:
+      enableFSGroupPolicy: true
+      enableInlineVolume: false
+
+    # Image settings
+    image:
+      nfs:
+        repository: registry.k8s.io/sig-storage/nfsplugin
+        tag: v4.9.0
+        pullPolicy: IfNotPresent
+      csiProvisioner:
+        repository: registry.k8s.io/sig-storage/csi-provisioner
+        tag: v5.1.0
+        pullPolicy: IfNotPresent
+      livenessProbe:
+        repository: registry.k8s.io/sig-storage/livenessprobe
+        tag: v2.14.0
+        pullPolicy: IfNotPresent
+      nodeDriverRegistrar:
+        repository: registry.k8s.io/sig-storage/csi-node-driver-registrar
+        tag: v2.12.0
+        pullPolicy: IfNotPresent

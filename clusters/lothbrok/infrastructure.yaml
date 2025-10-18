@@ -93,3 +93,21 @@ spec:
     provider: sops
     secretRef:
       name: sops-age
+---
+# Storage configuration
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: infrastructure-storage
+  namespace: flux-system
+spec:
+  interval: 10m
+  dependsOn:
+    - name: infrastructure
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./infrastructure/config/lothbrok/storage
+  prune: true
+  wait: true
+  timeout: 5m
