@@ -1,0 +1,71 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: linkding-postgres
+  namespace: linkding
+spec:
+  instances: 3
+
+  # PostgreSQL 16 (latest stable)
+  imageName: ghcr.io/cloudnative-pg/postgresql:16.6
+
+  # Storage - using local-path for performance
+  storage:
+    storageClassName: local-path
+    size: 10Gi
+
+  # Monitoring integration
+  monitoring:
+    enabled: true
+    podMonitorEnabled: true
+
+  # Bootstrap with initial database and user
+  bootstrap:
+    initdb:
+      database: linkding
+      owner: linkding
+      secret:
+        name: linkding-postgres-superuser
+
+  # PostgreSQL configuration optimized for homelab
+  postgresql:
+    parameters:
+      # Connection settings
+      max_connections: "100"
+
+      # Memory settings (adjust based on your nodes)
+      shared_buffers: "256MB"
+      effective_cache_size: "1GB"
+      maintenance_work_mem: "64MB"
+      work_mem: "4MB"
+
+      # WAL settings
+      wal_buffers: "8MB"
+      min_wal_size: "80MB"
+      max_wal_size: "1GB"
+
+      # Query tuning
+      random_page_cost: "1.1" # For SSD
+      effective_io_concurrency: "200" # For SSD
+
+      # Logging
+      log_destination: "stderr"
+      logging_collector: "on"
+      log_line_prefix: "%m [%p] %q%u@%d "
+      log_timezone: "UTC"
+
+  # Resources
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: "1000m"
+      memory: "1Gi"
+
+  # Backup configuration (optional - can add later)
+  # backup:
+  #   barmanObjectStore:
+  #     destinationPath: s3://your-bucket/linkding-postgres
+  #     wal:
+  #       compression: gzip
