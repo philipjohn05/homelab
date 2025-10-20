@@ -6,20 +6,19 @@ metadata:
 spec:
   instances: 3
 
-  # PostgreSQL 16 (latest stable)
+  # PostgreSQL 16
   imageName: ghcr.io/cloudnative-pg/postgresql:16.6
 
-  # Storage - using local-path for performance
+  # Storage configuration
   storage:
-    storageClassName: local-path
     size: 10Gi
+    storageClass: local-path
 
-  # Monitoring integration
+  # Monitoring
   monitoring:
-    enabled: true
-    podMonitorEnabled: true
+    enablePodMonitor: true
 
-  # Bootstrap with initial database and user
+  # Bootstrap
   bootstrap:
     initdb:
       database: linkding
@@ -27,28 +26,19 @@ spec:
       secret:
         name: linkding-postgres-superuser
 
-  # PostgreSQL configuration optimized for homelab
+  # PostgreSQL configuration
   postgresql:
     parameters:
-      # Connection settings
       max_connections: "100"
-
-      # Memory settings (adjust based on your nodes)
       shared_buffers: "256MB"
       effective_cache_size: "1GB"
       maintenance_work_mem: "64MB"
       work_mem: "4MB"
-
-      # WAL settings
       wal_buffers: "8MB"
       min_wal_size: "80MB"
       max_wal_size: "1GB"
-
-      # Query tuning
-      random_page_cost: "1.1" # For SSD
-      effective_io_concurrency: "200" # For SSD
-
-      # Logging
+      random_page_cost: "1.1"
+      effective_io_concurrency: "200"
       log_destination: "stderr"
       logging_collector: "on"
       log_line_prefix: "%m [%p] %q%u@%d "
@@ -57,15 +47,8 @@ spec:
   # Resources
   resources:
     requests:
-      cpu: "100m"
-      memory: "256Mi"
+      cpu: 100m
+      memory: 256Mi
     limits:
-      cpu: "1000m"
-      memory: "1Gi"
-
-  # Backup configuration (optional - can add later)
-  # backup:
-  #   barmanObjectStore:
-  #     destinationPath: s3://your-bucket/linkding-postgres
-  #     wal:
-  #       compression: gzip
+      cpu: 1000m
+      memory: 1Gi
