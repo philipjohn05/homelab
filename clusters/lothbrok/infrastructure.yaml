@@ -130,7 +130,3 @@ spec:
   prune: true
   wait: true
   timeout: 10m
-  postBuild:
-    substituteFrom:
-      - kind: Secret
-        name: cluster-secrets
