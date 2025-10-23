@@ -48,6 +48,31 @@ spec:
                 secretKeyRef:
                   name: linkding-secrets
                   key: LD_SUPERUSER_PASSWORD
+
+            - name: LD_DB_ENGINE
+              value: "postgres"
+
+            - name: LD_DB_HOST
+              value: "linkding-postgres-rw.linkding.svc.cluster.local"
+
+            - name: LD_DB_PORT
+              value: "5432"
+
+            - name: LD_DB_NAME
+              value: "linkding"
+
+            - name: LD_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: linkding-db-credentials
+                  key: username
+
+            - name: LD_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: linkding-db-credentials
+                  key: password
+
           volumeMounts:
             - name: linkding-data
               mountPath: /etc/linkding/data
