@@ -75,7 +75,6 @@ spec:
     grafana:
       enabled: true
       adminPassword: ${GRAFANA_ADMIN_PASSWORD}
-
       database:
         type: postgres
         host: grafana-postgres-rw.monitoring.svc.cluster.local:5432
@@ -83,14 +82,12 @@ spec:
         user: grafana
         password: $__file{/etc/secrets/grafana-db/password}
         sslmode: require
-
       extraSecretMounts:
         - name: grafana-db-secret
           secretName: grafana-db-credentials
           defaultMode: 0440
           mountPath: /etc/secrets/grafana-db
           readOnly: true
-
       ingress:
         enabled: true
         ingressClassName: traefik
