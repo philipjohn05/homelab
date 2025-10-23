@@ -76,15 +76,16 @@ spec:
       enabled: true
       adminPassword: ${GRAFANA_ADMIN_PASSWORD}
       # Add a dummy annotation to force update
-      podAnnotations:
-        forceUpdate: "2025-10-23-attempt-1" # Change this value each time
-      database:
-        type: postgres
-        host: grafana-postgres-rw.monitoring.svc.cluster.local:5432
-        name: grafana
-        user: grafana
-        password: $__file{/etc/secrets/grafana-db/password}
-        sslmode: require
+      # podAnnotations:
+      #   forceUpdate: "2025-10-23-attempt-1" # Change this value each time
+      grafana.ini:
+        database:
+          type: postgres
+          host: grafana-postgres-rw.monitoring.svc.cluster.local:5432
+          name: grafana
+          user: grafana
+          password: $__file{/etc/secrets/grafana-db/password}
+          sslmode: require
       extraSecretMounts:
         - name: grafana-db-secret
           secretName: grafana-db-credentials
