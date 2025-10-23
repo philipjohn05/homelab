@@ -78,17 +78,17 @@ spec:
 
       database:
         type: postgres
-        host: grafana.postgres-rw.monitoring.svc.cluster.local:5432
+        host: grafana-postgres-rw.monitoring.svc.cluster.local:5432
         name: grafana
         user: grafana
         password: $__file{/etc/secrets/grafana-db/password}
         sslmode: require
 
-      extraSecrentMounts:
+      extraSecretMounts:
         - name: grafana-db-secret
           secretName: grafana-db-credentials
           defaultMode: 0440
-          mounthPath: /etc/secrets/grafana-db
+          mountPath: /etc/secrets/grafana-db
           readOnly: true
 
       ingress:
