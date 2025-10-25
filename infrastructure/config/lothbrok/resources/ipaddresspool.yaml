@@ -1,56 +1,97 @@
-# Ingress Pool - For ingress controllers (Traefik, Nginx)
+# Pool 1: Ingress Controllers (Critical Infrastructure Tier)
+# IP Range: Sourced from Azure Key Vault secret 'metallb-ingress-pool'
+# Purpose: All external HTTP/HTTPS traffic entry points
+# Use Cases: Traefik ingress, nginx ingress, HAProxy
+# Security: Manual assignment ensures control over mission-critical infrastructure
 apiVersion: metallb.io/v1beta1
 kind: IPAddressPool
 metadata:
   name: ingress-pool
   namespace: metallb-system
+  annotations:
+    description: "Load balancer IPs for ingress controllers - critical infrastructure tier"
+    pool.metallb.io/tier: "infrastructure"
+    pool.metallb.io/source: "azure-keyvault:metallb-ingress-pool"
 spec:
   addresses:
     - ${INGRESS_POOL}
   autoAssign: false
+  avoidBuggyIPs: false
 ---
-# Services Pool - For general applications (default)
+# Pool 2: Application Services (User-Facing Tier)
+# IP Range: Sourced from Azure Key Vault secret 'metallb-services-pool'
+# Purpose: Direct application load balancers and user-facing services
+# Use Cases: Direct app access, microservices, API gateways, development services
+# Deployment: Auto-assignment enabled for rapid application deployment
 apiVersion: metallb.io/v1beta1
 kind: IPAddressPool
 metadata:
   name: services-pool
   namespace: metallb-system
+  annotations:
+    description: "Load balancer IPs for general applications and user facing services"
+    pool.metallb.io/tier: "applications"
+    pool.metallb.io/source: "azure-keyvault:metallb-services-pool"
 spec:
   addresses:
     - ${SERVICES_POOL}
   autoAssign: true
+  avoidBuggyIPs: false
 ---
-# Database Pool - For databases needing external access
+# Pool 3: Management & Admin Tools (Administrative Tier)
+# IP Range: Sourced from Azure Key Vault secret 'metallb-database-pool'
+# Purpose: Database management, admin dashboards, and security-sensitive interfaces
+# Use Cases: pgAdmin, Kubernetes Dashboard, ArgoCD UI, Vault UI
+# Security: Manual assignment with restricted access for administrative tools
+# Note: Despite variable name, this is for MANAGEMENT TOOLS, not database servers
 apiVersion: metallb.io/v1beta1
 kind: IPAddressPool
 metadata:
-  name: database-pool
+  name: management-pool
   namespace: metallb-system
+  annotations:
+    description: "Load balancer IPs for management tools and admin interfaces"
+    pool.metallb.io/tier: "management"
+    pool.metallb.io/source: "azure-keyvault:metallb-database-pool"
 spec:
   addresses:
     - ${DATABASE_POOL}
   autoAssign: false
+  avoidBuggyIPs: false
 ---
-# Reserved Pool - For testing and future services
+# Pool 4: Monitoring & Observability (Observability Tier)
+# IP Range: Sourced from Azure Key Vault secret 'metallb-reserved-pool'
+# Purpose: Monitoring, logging, metrics, and observability platforms
+# Use Cases: Grafana direct access, Prometheus UI, Alertmanager, Kibana, Jaeger
+# Deployment: Dedicated IPs for clear network monitoring and troubleshooting
+# Note: Despite variable name, this has a clear purpose for observability
 apiVersion: metallb.io/v1beta1
 kind: IPAddressPool
 metadata:
-  name: reserved-pool
+  name: monitoring-pool
   namespace: metallb-system
+  annotations:
+    description: "Load balancer IPs for monitoring and observability platforms"
+    pool.metallb.io/tier: "observability"
+    pool.metallb.io/source: "azure-keyvault:metallb-reserved-pool"
 spec:
   addresses:
     - ${RESERVED_POOL}
   autoAssign: false
 ---
-# L2 Advertisement for all pools
+# L2 Advertisement Configuration
+# Advertises all IP pools via Layer 2 (ARP) on the local network
+# All pools are available on the same broadcast domain
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
 metadata:
   name: l2-advertisement
   namespace: metallb-system
+  annotations:
+    description: "Layer 2 advertisement for all MetalLB IP pools"
 spec:
   ipAddressPools:
     - ingress-pool
     - services-pool
-    - database-pool
-    - reserved-pool
+    - management-pool
+    - monitoring-pool
