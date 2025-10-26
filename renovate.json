@@ -12,11 +12,9 @@
   },
   "hostRules": [
     {
-      "hostType": "docker",
-      "matchHost": "index.docker.io",
-      "timeout": 60000,
-      "abortOnError": false,
-      "concurrentRequestLimit": 2
+      "matchHost": "docker.io",
+      "username": "${RENOVATE_DOCKER_USERNAME}",
+      "password": "${RENOVATE_DOCKER_PASSWORD}"
     }
   ]
 }
