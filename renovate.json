@@ -16,14 +16,10 @@
   },
   "packageRules": [
     {
-      "description": "Disable Docker Hub - authentication issues with self-hosted Renovate",
+      "description": "Disable Docker Hub images - authentication issues",
       "matchDatasources": ["docker"],
-      "matchRegistries": ["docker.io", "index.docker.io", "hub.docker.com"],
+      "matchPackagePatterns": ["^[^/]+/[^/]+$"],
       "enabled": false
-    },
-    {
-      "matchDatasources": ["docker"],
-      "timeout": 120000
     }
   ]
 }
