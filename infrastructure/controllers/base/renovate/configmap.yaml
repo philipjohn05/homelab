@@ -7,4 +7,4 @@ data:
   RENOVATE_PLATFORM: "github"
   RENOVATE_AUTODISCOVER: "false"
   RENOVATE_GIT_AUTHOR: "PJ's Renovate Bot <bot@renovateapp.com>"
-  LOG_LEVEL: "info"
+  LOG_LEVEL: "debug"

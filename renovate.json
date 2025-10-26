@@ -1,5 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
   "kubernetes": {
     "fileMatch": ["\\.ya?ml$"]
   },
@@ -11,6 +12,6 @@
     ]
   },
   "docker": {
-    "enabled": false
+    "enabled": true
   }
 }
