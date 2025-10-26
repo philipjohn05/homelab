@@ -13,5 +13,11 @@
   },
   "docker": {
     "enabled": true
-  }
+  },
+  "packageRules": [
+    {
+      "matchDatasources": ["docker"],
+      "timeout": 120000
+    }
+  ]
 }

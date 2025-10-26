@@ -4,7 +4,7 @@ metadata:
   name: renovate
   namespace: renovate
 spec:
-  schedule: "0 */6 * * *" # Every 6 hours
+  schedule: "0 */6 * * *"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
@@ -26,6 +26,10 @@ spec:
                     name: renovate-secret
                 - configMapRef:
                     name: renovate-env
+              volumeMounts:
+                - name: docker-config
+                  mountPath: /home/ubuntu/.docker
+                  readOnly: true
               resources:
                 requests:
                   cpu: 100m
@@ -33,3 +37,10 @@ spec:
                 limits:
                   cpu: 1000m
                   memory: 2Gi
+          volumes:
+            - name: docker-config
+              secret:
+                secretName: renovate-docker-config
+                items:
+                  - key: .dockerconfigjson
+                    path: config.json
