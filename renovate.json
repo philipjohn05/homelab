@@ -13,6 +13,7 @@
   "hostRules": [
     {
       "matchHost": "docker.io",
+      "socketTimeout": 120000,
       "username": "${RENOVATE_DOCKER_USERNAME}",
       "password": "${RENOVATE_DOCKER_PASSWORD}"
     }
