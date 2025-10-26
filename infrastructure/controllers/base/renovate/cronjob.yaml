@@ -21,20 +21,11 @@ spec:
               image: ghcr.io/renovatebot/renovate:39.93.1
               args:
                 - philipjohn05/homelab
-              env:
-                # Tell Renovate explicitly where Docker config is
-                - name: DOCKER_CONFIG
-                  value: "/.docker"
               envFrom:
                 - secretRef:
                     name: renovate-secret
                 - configMapRef:
                     name: renovate-env
-              volumeMounts:
-                # Mount at /.docker (root level)
-                - name: docker-config
-                  mountPath: /.docker
-                  readOnly: true
               resources:
                 requests:
                   cpu: 100m
@@ -42,10 +33,3 @@ spec:
                 limits:
                   cpu: 1000m
                   memory: 2Gi
-          volumes:
-            - name: docker-config
-              secret:
-                secretName: renovate-docker-config
-                items:
-                  - key: .dockerconfigjson
-                    path: config.json
