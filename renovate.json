@@ -14,6 +14,26 @@
   "docker": {
     "enabled": true
   },
+  "hostRules": [
+    {
+      "matchHost": "docker.io",
+      "hostType": "docker",
+      "username": "pjsleepless",
+      "password": "{{ secrets.RENOVATE_PASSWORD }}"
+    },
+    {
+      "matchHost": "index.docker.io",
+      "hostType": "docker",
+      "username": "pjsleepless",
+      "password": "{{ secrets.RENOVATE_PASSWORD }}"
+    },
+    {
+      "matchHost": "hub.docker.com",
+      "hostType": "docker",
+      "username": "pjsleepless",
+      "password": "{{ secrets.RENOVATE_PASSWORD }}"
+    }
+  ],
   "packageRules": [
     {
       "matchDatasources": ["docker"],
