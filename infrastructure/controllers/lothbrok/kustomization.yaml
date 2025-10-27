@@ -8,3 +8,4 @@ resources:
   - ../base/cloudnative-pg
   - ../base/nfs-csi-driver
   - ../base/renovate
+  - ../base/cert-manager
