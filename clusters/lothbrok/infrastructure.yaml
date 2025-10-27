@@ -94,7 +94,27 @@ spec:
     secretRef:
       name: sops-age
 ---
-# Storage configuration
+# Phase 5: Certificates (ClusterIssuers for cert-manager)
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: infrastructure-certificates
+  namespace: flux-system
+spec:
+  interval: 10m
+  dependsOn:
+    - name: infrastructure # Depends on cert-manager being deployed
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./infrastructure/config/lothbrok/certs
+  prune: true
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
+---
+# Phase 6: Storage configuration
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
@@ -112,7 +132,7 @@ spec:
   wait: true
   timeout: 5m
 ---
-# PostgreSQL Databases
+# Phase 7: PostgreSQL Databases
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
