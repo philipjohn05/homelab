@@ -10,6 +10,8 @@ data:
     ingress:
       - hostname: linkding.pjfaraon.net
         service: http://linkding.linkding.svc.cluster.local:9090
+      - hostname: pgadmin.pjfaraon.net
+        service: http://pgadmin.pgadmin.svc.cluster.local:80
       - hostname: "*.pjfaraon.net"
         service: http://traefik.traefik.svc.cluster.local:80
       - service: http_status:404
