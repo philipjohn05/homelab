@@ -1,13 +1,13 @@
-apiVersion: batch/v1
+apiVersion: batch/v2
 kind: CronJob
 metadata:
   name: renovate
   namespace: renovate
 spec:
-  schedule: "0 */6 * * *"
+  schedule: "0 2 * * *"
   concurrencyPolicy: Forbid
-  successfulJobsHistoryLimit: 3
-  failedJobsHistoryLimit: 3
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 2
   jobTemplate:
     spec:
       template:
