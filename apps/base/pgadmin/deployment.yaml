@@ -15,6 +15,10 @@ spec:
       labels:
         app: pgadmin
     spec:
+      securityContext:
+        fsGroup: 5050
+        runAsUser: 5050
+        runAsGroup: 5050
       containers:
         - name: pgadmin
           image: dpage/pgadmin4:latest
@@ -49,13 +53,13 @@ spec:
             httpGet:
               path: /misc/ping
               port: 80
-            initialDelaySeconds: 30
+            initialDelaySeconds: 60
             periodSeconds: 10
           readinessProbe:
             httpGet:
               path: /misc/ping
               port: 80
-            initialDelaySeconds: 10
+            initialDelaySeconds: 30
             periodSeconds: 5
       volumes:
         - name: pgadmin-data
