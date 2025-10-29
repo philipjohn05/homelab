@@ -5,6 +5,7 @@ metadata:
   namespace: monitoring
 spec:
   instances: 3
+  enableSuperuserAccess: true
   imageName: ghcr.io/cloudnative-pg/postgresql:16.6
 
   postgresql:
