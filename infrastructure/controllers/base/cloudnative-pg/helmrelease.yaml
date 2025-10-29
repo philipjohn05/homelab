@@ -18,7 +18,7 @@ spec:
   chart:
     spec:
       chart: cloudnative-pg
-      version: "0.26.x"
+      version: "0.22.x"
       sourceRef:
         kind: HelmRepository
         name: cloudnative-pg
@@ -35,15 +35,19 @@ spec:
     # Monitoring integration
     monitoring:
       podMonitorEnabled: true
+      podMonitorAdditionalLabels:
+        release: kube-prometheus-stack
       grafanaDashboard:
         create: true
-    
+        labels:
+          grafana_dashboard: "1"
+
     # Config
     config:
       data:
         INHERITED_ANNOTATIONS: "prometheus.io/*"
         INHERITED_LABELS: "app.kubernetes.io/*"
-    
+
     # Resources
     resources:
       requests:
@@ -52,7 +56,7 @@ spec:
       limits:
         cpu: 500m
         memory: 512Mi
-    
+
     # Security context
     securityContext:
       allowPrivilegeEscalation: false
