@@ -35,8 +35,9 @@ spec:
     # Monitoring integration
     monitoring:
       podMonitorEnabled: true
-      podMonitorAdditionalLabels:
-        release: kube-prometheus-stack
+      podMonitor:
+        additionalLabels:
+          release: kube-prometheus-stack
       grafanaDashboard:
         create: true
         labels:
