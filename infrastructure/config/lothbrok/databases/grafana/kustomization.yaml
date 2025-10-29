@@ -3,5 +3,5 @@ kind: Kustomization
 namespace: monitoring
 resources:
   - db-credentials-externalsecret.yaml
-  - superuser-externalsecret.yaml
+  # - superuser-externalsecret.yaml
   - postgres-cluster.yaml
