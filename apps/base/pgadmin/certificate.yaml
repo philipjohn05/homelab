@@ -4,17 +4,16 @@ metadata:
   name: pgadmin-tls
   namespace: pgadmin
   annotations:
-    description: "SSL certificate for local-only pgAdmin access"
+    description: "Let's Encrypt SSL certificate for local pgAdmin via DNS-01"
 spec:
   secretName: pgadmin-tls
   issuerRef:
-    name: letsencrypt-prod
+    name: letsencrypt-dns01-staging # Start with staging to test
     kind: ClusterIssuer
   dnsNames:
     - pgadmin.local.pjfaraon.net
   duration: 2160h # 90 days
-  renewBefore: 720h # 30 days before expiry
+  renewBefore: 720h # 30 days
   privateKey:
     algorithm: RSA
-    encoding: PKCS1
     size: 2048

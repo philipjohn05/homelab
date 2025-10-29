@@ -1,0 +1,19 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-dns01-staging
+  annotations:
+    description: "Let's Encrypt staging with DNS-01 challenge via Cloudflare"
+spec:
+  acme:
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    email: pjfaraon@gmail.com
+    privateKeySecretRef:
+      name: letsencrypt-dns01-staging-account-key
+    solvers:
+      - dns01:
+          cloudflare:
+            email: pjcloudapps@gmail.com
+            apiTokenSecretRef:
+              name: cloudflare-api-token
+              key: api-token

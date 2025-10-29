@@ -3,3 +3,6 @@ kind: Kustomization
 resources:
   - clusterissuer-letsencrypt-staging.yaml
   - clusterissuer-letsencrypt-prod.yaml
+  - clusterissuer-letsencrypt-dns01-staging.yaml
+  - clusterissuer-letsencrypt-dns01-prod.yaml
+  - cloudflare-api-token-externalsecret.yaml

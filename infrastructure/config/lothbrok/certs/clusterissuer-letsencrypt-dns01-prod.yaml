@@ -1,0 +1,19 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-dns01-prod
+  annotations:
+    description: "Let's Encrypt production with DNS-01 challenge via Cloudflare"
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: pjfaraon@gmail.com
+    privateKeySecretRef:
+      name: letsencrypt-dns01-prod-account-key
+    solvers:
+      - dns01:
+          cloudflare:
+            email: pjcloudapps@gmail.com # Your Cloudflare account email
+            apiTokenSecretRef:
+              name: cloudflare-api-token
+              key: api-token
