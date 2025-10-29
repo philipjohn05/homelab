@@ -8,7 +8,7 @@ metadata:
 spec:
   secretName: pgadmin-tls
   issuerRef:
-    name: letsencrypt-dns01-staging # Start with staging to test
+    name: letsencrypt-dns01-prod
     kind: ClusterIssuer
   dnsNames:
     - pgadmin.local.pjfaraon.net
