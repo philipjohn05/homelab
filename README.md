@@ -103,7 +103,7 @@ Running on **Proxmox VE 8.x** as the hypervisor layer:
 | Logo                                                                     | Name                                                 | Description                                                    |
 | ------------------------------------------------------------------------ | ---------------------------------------------------- | -------------------------------------------------------------- |
 | <img width="32" src="https://avatars.githubusercontent.com/u/134059324"> | [Linkding](https://github.com/sissbruecker/linkding) | Self-hosted bookmark manager with tagging and full-text search |
-| <img width="32" src="https://www.pgadmin.org/static/img/pgadmin4-logo.png"> | [pgAdmin](https://www.pgadmin.org/)               | Web-based PostgreSQL database management tool                  |
+| <img width="32" src="https://github.com/pgadmin-org/pgadmin4/blob/master/runtime/assets/pgAdmin4.png"> | [pgAdmin](https://www.pgadmin.org/)  | Web-based PostgreSQL database management tool    |
 
 ### 🔧 Infrastructure
 
