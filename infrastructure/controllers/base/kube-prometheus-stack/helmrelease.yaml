@@ -28,6 +28,7 @@ spec:
   valuesFrom:
     - kind: Secret
       name: alertmanager-discord-webhook
+      namespace: monitoring
       valuesKey: url
       targetPath: alertmanager.config.receivers[0].webhook_configs[0].url
 
