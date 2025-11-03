@@ -111,7 +111,7 @@ spec:
         size: 10Gi
 
     alertmanager:
-      enabled: false
+      enabled: true
 
       config:
         global:
