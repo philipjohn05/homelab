@@ -111,7 +111,7 @@ spec:
         size: 10Gi
 
     alertmanager:
-      enabled: true
+      enabled: false
 
       config:
         global:
@@ -168,7 +168,7 @@ spec:
               - -c
               - |
                 echo "Fixing /alertmanager permissions..."
-                chown -R 65534:65534 /alertmanager
+                chown -R 1000:2000 /alertmanager
                 chmod -R 775 /alertmanager
                 echo "Permissions fixed. Directory contents:"
                 ls -la /alertmanager
