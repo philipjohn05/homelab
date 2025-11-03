@@ -29,7 +29,7 @@ spec:
     - kind: Secret
       name: alertmanager-discord-webhook
       valuesKey: url
-      targetPath: alertmanager.config.receivers[0].webhook_configs[0].url
+      targetPath: alertmanager.config.receivers[1].webhook_configs[0].url
 
   releaseName: kube-prometheus-stack
   targetNamespace: monitoring
