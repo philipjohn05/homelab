@@ -129,10 +129,15 @@ spec:
                 alertname: Watchdog
               receiver: "null"
             - match:
-                alertname: info
+                severity: info
               receiver: "null"
             - match_re:
                 alertname: "KubeControllerManagerDown|KubeProxyDown|KubeSchedulerDown"
+              receiver: "null"
+            - match:
+                alertname: TargetDown
+              match_re:
+                job: "kube-controller-manager|kube-proxy|kube-scheduler"
               receiver: "null"
             - match:
                 severity: critical
