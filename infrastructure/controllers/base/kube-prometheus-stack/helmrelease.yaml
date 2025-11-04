@@ -129,6 +129,9 @@ spec:
                 alertname: Watchdog
               receiver: "null"
             - match:
+                alertname: info
+              receiver: "null"
+            - match:
                 severity: critical
               receiver: "discord"
               group_wait: 10s
