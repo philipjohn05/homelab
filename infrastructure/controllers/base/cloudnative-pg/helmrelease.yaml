@@ -40,8 +40,8 @@ spec:
           release: kube-prometheus-stack
       grafanaDashboard:
         create: true
-        labels:
-          grafana_dashboard: "1"
+        # labels:
+        #   grafana_dashboard: "1"
 
     # Config
     config:
