@@ -129,7 +129,7 @@ spec:
                 alertname: Watchdog
               receiver: "null"
             - match:
-                alertname: info
+                severity: info
               receiver: "null"
             - match:
                 severity: critical
