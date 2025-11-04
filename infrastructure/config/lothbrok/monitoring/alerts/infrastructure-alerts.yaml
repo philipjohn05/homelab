@@ -1,0 +1,66 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: infrastructure-alerts
+  namespace: monitoring
+  labels:
+    prometheus: kube-prometheus-stack-prometheus
+    role: alert-rules
+spec:
+  groups:
+    - name: infrastructure.nodes
+      interval: 30s
+      rules:
+        - alert: NodeDown
+          expr: up{job="node-exporter"} == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Node {{ $labels.instance }} is down"
+            description: "Node {{ $labels.instance }} has been unreachable for more than 2 minutes."
+
+        - alert: NodeHighMemoryUsage
+          expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Node {{ $labels.instance }} high memory usage"
+            description: 'Node {{ $labels.instance }} memory usage is at {{ printf "%.2f" $value }}% (threshold: 85%)'
+
+        - alert: NodeCriticalMemoryUsage
+          expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 95
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Node {{ $labels.instance }} critical memory usage"
+            description: 'Node {{ $labels.instance }} memory usage is at {{ printf "%.2f" $value }}% (threshold: 95%)'
+
+        - alert: NodeHighCPUUsage
+          expr: 100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Node {{ $labels.instance }} high CPU usage"
+            description: 'Node {{ $labels.instance }} CPU usage is at {{ printf "%.2f" $value }}% for more than 10 minutes'
+
+        - alert: NodeDiskSpaceLow
+          expr: (node_filesystem_avail_bytes{fstype!="tmpfs",mountpoint!~"/boot.*"} / node_filesystem_size_bytes) * 100 < 15
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Node {{ $labels.instance }} low disk space on {{ $labels.mountpoint }}"
+            description: 'Disk space on {{ $labels.mountpoint }} is at {{ printf "%.2f" $value }}% available (threshold: 15%)'
+
+        - alert: NodeDiskSpaceCritical
+          expr: (node_filesystem_avail_bytes{fstype!="tmpfs",mountpoint!~"/boot.*"} / node_filesystem_size_bytes) * 100 < 5
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Node {{ $labels.instance }} critical disk space on {{ $labels.mountpoint }}"
+            description: 'Disk space on {{ $labels.mountpoint }} is critically low at {{ printf "%.2f" $value }}% available'
