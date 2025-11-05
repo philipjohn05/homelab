@@ -131,6 +131,9 @@ spec:
             - match:
                 severity: info
               receiver: "null"
+            - match:
+                severity: none
+              receiver: "null"
             - match_re:
                 alertname: "KubeControllerManagerDown|KubeProxyDown|KubeSchedulerDown"
               receiver: "null"
