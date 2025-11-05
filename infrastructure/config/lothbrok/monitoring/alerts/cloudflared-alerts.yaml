@@ -1,0 +1,51 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: cloudflared-alerts
+  namespace: monitoring
+  labels:
+    prometheus: kube-prometheus-stack-prometheus
+    role: alert-rules
+    release: kube-prometheus-stack
+    app: cloudflared
+spec:
+  groups:
+    - name: applications.cloudflared
+      interval: 30s
+      rules:
+        - alert: CloudflaredTunnelDown
+          expr: up{job=~".*cloudflared.*"} == 0
+          for: 3m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Cloudflared tunnel is down"
+            description: "Cloudflared tunnel has been down for more than 3 minutes. External access may be affected."
+
+        - alert: CloudflaredPodNotReady
+          expr: kube_pod_status_phase{namespace="cloudflared",phase!~"Running|Succeeded"} == 1
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Cloudflared pod {{ $labels.pod }} not ready"
+            description: "Cloudflared pod {{ $labels.pod }} has been in {{ $labels.phase }} state for more than 5 minutes"
+
+        - alert: CloudflaredPodRestarting
+          expr: rate(kube_pod_container_status_restarts_total{namespace="cloudflared"}[15m]) > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Cloudflared pod {{ $labels.pod }} is restarting"
+            description: 'Cloudflared pod {{ $labels.pod }} has restarted {{ printf "%.2f" $value }} times in the last 15 minutes'
+
+        - alert: CloudflaredTunnelDisconnected
+          expr: kube_pod_container_status_last_terminated_reason{namespace="cloudflared",reason!="Completed"} == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Cloudflared tunnel disconnected unexpectedly"
+            description: "Cloudflared pod {{ $labels.pod }} terminated with reason: {{ $labels.reason }}"

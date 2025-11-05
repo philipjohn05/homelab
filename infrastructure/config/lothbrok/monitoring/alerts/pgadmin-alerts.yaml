@@ -1,0 +1,50 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: pgadmin-alerts
+  namespace: monitoring
+  labels:
+    prometheus: kube-prometheus-stack-prometheus
+    role: alert-rules
+    release: kube-prometheus-stack
+    app: pgadmin
+spec:
+  groups:
+    - name: applications.pgadmin
+      interval: 30s
+      rules:
+        - alert: PgAdminDown
+          expr: up{job=~".*pgadmin.*"} == 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "pgAdmin is down"
+            description: "pgAdmin has been down for more than 5 minutes"
+
+        - alert: PgAdminPodNotReady
+          expr: kube_pod_status_phase{namespace="pgadmin",phase!~"Running|Succeeded"} == 1
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "pgAdmin pod {{ $labels.pod }} not ready"
+            description: "pgAdmin pod {{ $labels.pod }} has been in {{ $labels.phase }} state for more than 5 minutes"
+
+        - alert: PgAdminPodRestarting
+          expr: rate(kube_pod_container_status_restarts_total{namespace="pgadmin"}[15m]) > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "pgAdmin pod {{ $labels.pod }} is restarting"
+            description: 'pgAdmin pod {{ $labels.pod }} has restarted {{ printf "%.2f" $value }} times in the last 15 minutes'
+
+        - alert: PgAdminPVCIssue
+          expr: kube_persistentvolumeclaim_status_phase{namespace="pgadmin",phase="Pending"} == 1
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "pgAdmin PVC {{ $labels.persistentvolumeclaim }} is pending"
+            description: "pgAdmin PVC has been pending for more than 5 minutes"

@@ -1,0 +1,61 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: ingress-alerts
+  namespace: monitoring
+  labels:
+    prometheus: kube-prometheus-stack-prometheus
+    role: alert-rules
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: ingress.traefik
+      interval: 30s
+      rules:
+        - alert: TraefikDown
+          expr: up{job="traefik"} == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Traefik ingress controller is down"
+            description: "Traefik has been down for more than 2 minutes. Ingress routing is affected."
+
+        - alert: IngressRouteNotWorking
+          expr: traefik_service_server_up{service=~".*(linkding|pgadmin).*"} == 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Traefik cannot reach {{ $labels.service }}"
+            description: "Traefik reports service {{ $labels.service }} backend is down"
+
+    - name: ingress.certificates
+      interval: 30s
+      rules:
+        - alert: CertificateExpiringSoon
+          expr: (certmanager_certificate_expiration_timestamp_seconds - time()) / 86400 < 14
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "Certificate {{ $labels.name }} expiring soon"
+            description: 'Certificate {{ $labels.name }} in namespace {{ $labels.namespace }} will expire in {{ printf "%.0f" $value }} days'
+
+        - alert: CertificateExpiringVerySoon
+          expr: (certmanager_certificate_expiration_timestamp_seconds - time()) / 86400 < 7
+          for: 1h
+          labels:
+            severity: critical
+          annotations:
+            summary: "Certificate {{ $labels.name }} expiring very soon"
+            description: 'Certificate {{ $labels.name }} in namespace {{ $labels.namespace }} will expire in {{ printf "%.0f" $value }} days'
+
+        - alert: CertificateNotReady
+          expr: certmanager_certificate_ready_status{condition="False"} == 1
+          for: 10m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Certificate {{ $labels.name }} not ready"
+            description: "Certificate {{ $labels.name }} in namespace {{ $labels.namespace }} has been not ready for 10 minutes"

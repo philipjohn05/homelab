@@ -1,0 +1,50 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: linkding-alerts
+  namespace: monitoring
+  labels:
+    prometheus: kube-prometheus-stack-prometheus
+    role: alert-rules
+    release: kube-prometheus-stack
+    app: linkding
+spec:
+  groups:
+    - name: applications.linkding
+      interval: 30s
+      rules:
+        - alert: LinkdingDown
+          expr: up{job=~".*linkding.*"} == 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Linkding application is down"
+            description: "Linkding has been down for more than 5 minutes"
+
+        - alert: LinkdingPodNotReady
+          expr: kube_pod_status_phase{namespace="linkding",phase!~"Running|Succeeded"} == 1
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Linkding pod {{ $labels.pod }} not ready"
+            description: "Linkding pod {{ $labels.pod }} has been in {{ $labels.phase }} state for more than 5 minutes"
+
+        - alert: LinkdingPodRestarting
+          expr: rate(kube_pod_container_status_restarts_total{namespace="linkding"}[15m]) > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Linkding pod {{ $labels.pod }} is restarting"
+            description: 'Linkding pod {{ $labels.pod }} has restarted {{ printf "%.2f" $value }} times in the last 15 minutes'
+
+        - alert: LinkdingDatabaseConnectionFailed
+          expr: kube_pod_container_status_last_terminated_reason{namespace="linkding",reason=~"Error|CrashLoopBackOff"} == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Linkding cannot connect to database"
+            description: "Linkding pod {{ $labels.pod }} is failing, possibly due to database connection issues"

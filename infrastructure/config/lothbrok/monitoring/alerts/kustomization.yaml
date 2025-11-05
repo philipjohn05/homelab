@@ -6,3 +6,7 @@ resources:
   - monitoring-alerts.yaml
   - flux-alerts.yaml
   - database-alerts.yaml
+  - ingress-alerts.yaml
+  - linkding-alerts.yaml
+  - cloudflared-alerts.yaml
+  - pgadmin-alerts.yaml
