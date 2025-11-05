@@ -1,0 +1,40 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: monitoring-alerts
+  namespace: monitoring
+  labels:
+    prometheus: kube-prometheus-stack-prometheus
+    role: alert-rules
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: monitoring.stack
+      interval: 30s
+      rules:
+        - alert: PrometheusDown
+          expr: up{job="prometheus"} == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Prometheus is down"
+            description: "Prometheus has been down for more than 2 minutes. Monitoring is affected."
+
+        - alert: GrafanaDown
+          expr: up{job="kube-prometheus-stack-grafana"} == 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Grafana is down"
+            description: "Grafana has been down for more than 5 minutes"
+
+        - alert: AlertmanagerDown
+          expr: up{job="alertmanager"} == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Alertmanager is down"
+            description: "Alertmanager has been down for more than 2 minutes. Alert notifications are affected."

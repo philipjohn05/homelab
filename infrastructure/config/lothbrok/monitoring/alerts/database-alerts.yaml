@@ -1,0 +1,40 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: database-alerts
+  namespace: monitoring
+  labels:
+    prometheus: kube-prometheus-stack-prometheus
+    role: alert-rules
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: databases.postgresql
+      interval: 30s
+      rules:
+        - alert: PostgresClusterDown
+          expr: cnpg_pg_postmaster_up == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "PostgreSQL cluster {{ $labels.namespace }}/{{ $labels.cluster }} is down"
+            description: "PostgreSQL instance {{ $labels.pod }} has been down for more than 2 minutes"
+
+        - alert: PostgresHighConnections
+          expr: (cnpg_backends_total / cnpg_pg_settings_max_connections) * 100 > 80
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "PostgreSQL {{ $labels.namespace }}/{{ $labels.cluster }} high connection usage"
+            description: 'PostgreSQL is using {{ printf "%.2f" $value }}% of max connections'
+
+        - alert: PostgresReplicationLag
+          expr: cnpg_pg_replication_lag > 30
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "PostgreSQL replication lag on {{ $labels.namespace }}/{{ $labels.cluster }}"
+            description: "Replication lag is {{ $value }} seconds on pod {{ $labels.pod }}"

@@ -1,0 +1,49 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: flux-alerts
+  namespace: monitoring
+  labels:
+    prometheus: kube-prometheus-stack-prometheus
+    role: alert-rules
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: flux.gitops
+      interval: 1m
+      rules:
+        - alert: FluxReconciliationFailure
+          expr: gotk_reconcile_condition{type="Ready",status="False"} == 1
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Flux reconciliation failure for {{ $labels.kind }}/{{ $labels.name }}"
+            description: "Flux {{ $labels.kind }} {{ $labels.name }} in namespace {{ $labels.namespace }} has been failing to reconcile for 10 minutes"
+
+        - alert: FluxGitRepositoryUnhealthy
+          expr: gotk_reconcile_condition{type="Ready",status="False",kind="GitRepository"} == 1
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Flux GitRepository {{ $labels.name }} is unhealthy"
+            description: "GitRepository {{ $labels.name }} in namespace {{ $labels.namespace }} has been failing for 5 minutes. Check repository connectivity."
+
+        - alert: FluxKustomizationUnhealthy
+          expr: gotk_reconcile_condition{type="Ready",status="False",kind="Kustomization"} == 1
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Flux Kustomization {{ $labels.name }} is unhealthy"
+            description: "Kustomization {{ $labels.name }} in namespace {{ $labels.namespace }} has been failing for 10 minutes"
+
+        - alert: FluxHelmReleaseUnhealthy
+          expr: gotk_reconcile_condition{type="Ready",status="False",kind="HelmRelease"} == 1
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Flux HelmRelease {{ $labels.name }} is unhealthy"
+            description: "HelmRelease {{ $labels.name }} in namespace {{ $labels.namespace }} has been failing for 10 minutes"
