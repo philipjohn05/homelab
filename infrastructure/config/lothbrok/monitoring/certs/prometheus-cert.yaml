@@ -8,7 +8,7 @@ metadata:
 spec:
   secretName: prometheus-tls
   issuerRef:
-    name: letsencrypt-dns01-staging
+    name: letsencrypt-dns01-prod
     kind: ClusterIssuer
   dnsNames:
     - prometheus.local.pjfaraon.net
