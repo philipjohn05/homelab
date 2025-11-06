@@ -1,0 +1,19 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: alertmanager-tls
+  namespace: monitoring
+  annotations:
+    description: "Let's Encrypt SSL certificate for local Alertmanager via DNS-01"
+spec:
+  secretName: alertmanager-tls
+  issuerRef:
+    name: letsencrypt-dns01-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - alertmanager.local.pjfaraon.net
+  duration: 2160h # 90 days
+  renewBefore: 720h # 30 days
+  privateKey:
+    algorithm: RSA
+    size: 2048
