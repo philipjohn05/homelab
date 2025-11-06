@@ -1,0 +1,19 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: prometheus-tls
+  namespace: monitoring
+  annotations:
+    description: "Let's Encrypt SSL certificate for local Prometheus via DNS-01"
+spec:
+  secretName: prometheus-tls
+  issuerRef:
+    name: letsencrypt-dns01-staging
+    kind: ClusterIssuer
+  dnsNames:
+    - prometheus.local.pjfaraon.net
+  duration: 2160h # 90 days
+  renewBefore: 720h # 30 days
+  privateKey:
+    algorithm: RSA
+    size: 2048
