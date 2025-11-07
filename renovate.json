@@ -20,6 +20,12 @@
       "matchDatasources": ["docker"],
       "matchPackagePatterns": ["^[^/]+/[^/]+$"],
       "enabled": false
+    },
+    {
+      "description": "Disable busybox specifically",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["busybox", "library/busybox"],
+      "enabled": false
     }
   ]
 }
