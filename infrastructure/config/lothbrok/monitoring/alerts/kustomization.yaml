@@ -10,3 +10,4 @@ resources:
   - linkding-alerts.yaml
   - cloudflared-alerts.yaml
   - pgadmin-alerts.yaml
+  - renovate-alerts.yaml
