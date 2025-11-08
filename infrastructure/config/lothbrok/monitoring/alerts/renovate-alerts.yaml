@@ -23,7 +23,7 @@ spec:
             description: "Renovate job {{ $labels.job_name }} in namespace {{ $labels.namespace }} has failed. Check logs for dependency update issues."
 
         - alert: RenovateJobTakingTooLong
-          expr: time() - kube_job_status_start_time{namespace="renovate",job_name=~"renovate.*"} > 1800
+          expr: time() - kube_job_status_start_time{namespace="renovate",job_name=~"renovate.*"} > 3600
           for: 5m
           labels:
             severity: warning
