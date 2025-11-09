@@ -23,13 +23,16 @@ spec:
             description: "Renovate job {{ $labels.job_name }} in namespace {{ $labels.namespace }} has failed. Check logs for dependency update issues."
 
         - alert: RenovateJobTakingTooLong
-          expr: time() - kube_job_status_start_time{namespace="renovate",job_name=~"renovate.*"} > 3600
+          expr: |
+            (time() - kube_job_status_start_time{namespace="renovate",job_name=~"renovate.*"} > 3600)
+            and
+            (kube_job_status_active{namespace="renovate",job_name=~"renovate.*"} > 0)
           for: 5m
           labels:
             severity: warning
           annotations:
             summary: "Renovate job {{ $labels.job_name }} running too long"
-            description: "Renovate job {{ $labels.job_name }} has been running for more than 30 minutes. May be stuck or experiencing network issues."
+            description: "Renovate job {{ $labels.job_name }} has been ACTIVELY running for more than 60 minutes. May be stuck or experiencing network issues."
 
         - alert: RenovateCronJobSuspended
           expr: kube_cronjob_spec_suspend{namespace="renovate",cronjob="renovate"} > 0
