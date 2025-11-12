@@ -19,7 +19,7 @@ spec:
           restartPolicy: Never
           containers:
             - name: renovate
-              image: ghcr.io/renovatebot/renovate:42.5.2
+              image: ghcr.io/renovatebot/renovate:42.6.2
               args:
                 - philipjohn05/homelab
               envFrom:
