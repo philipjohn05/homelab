@@ -17,6 +17,7 @@ spec:
     spec:
       serviceAccountName: azdo-agent
       containers:
+        # Azure DevOps Agent
         - name: agent
           image: mcr.microsoft.com/azure-pipelines/vsts-agent:ubuntu-22.04
           env:
@@ -39,6 +40,24 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
+            - name: DOCKER_HOST
+              value: tcp://localhost:2375
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+
+        # Docker-in-Docker Sidecar
+        - name: dind
+          image: docker:24-dind
+          env:
+            - name: DOCKER_TLS_CERTDIR
+              value: ""
+          securityContext:
+            privileged: true
           resources:
             requests:
               memory: "512Mi"
@@ -47,11 +66,11 @@ spec:
               memory: "2Gi"
               cpu: "1000m"
           volumeMounts:
-            - name: docker-socket
-              mountPath: /var/run/docker.sock
+            - name: docker-storage
+              mountPath: /var/lib/docker
+
       volumes:
-        - name: docker-socket
-          hostPath:
-            path: /var/run/docker.sock
-            type: Socket
+        - name: docker-storage
+          emptyDir: {} # ✅ Uses emptyDir instead of hostPath
+
       restartPolicy: Always
