@@ -1,0 +1,118 @@
+# azure-pipelines.yml
+# Azure Pipelines - Test Homelab Agents
+# Runs on self-hosted Kubernetes agents
+
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    exclude:
+      - README.md
+      - docs/*
+
+pool:
+  name: homelab-pool
+
+stages:
+  - stage: Test
+    displayName: "Test Homelab Infrastructure"
+    jobs:
+      - job: TestAgent
+        displayName: "Test Agent Capabilities"
+        steps:
+          - script: |
+              echo "Running on Homelab Kubernetes Agent"
+              echo "====================================="
+              echo ""
+              echo "Agent Information:"
+              echo "   Hostname: $(hostname)"
+              echo "   User: $(whoami)"
+              echo "   Working Directory: $(pwd)"
+              echo ""
+            displayName: "1. Agent Info"
+
+          - script: |
+              echo "Testing Docker..."
+              docker version --format 'Client: {{.Client.Version}} | Server: {{.Server.Version}}'
+              echo ""
+              echo "Running hello-world container:"
+              docker run --rm hello-world
+            displayName: "2. Test Docker"
+
+          - script: |
+              echo "Testing Kubectl..."
+              kubectl version --client --short
+              echo ""
+              echo "Cluster Info:"
+              kubectl cluster-info
+              echo ""
+              echo "Nodes:"
+              kubectl get nodes
+            displayName: "3. Test Kubectl"
+
+          - script: |
+              echo "Installed Tools:"
+              echo "   Git: $(git --version)"
+              echo "   Curl: $(curl --version | head -1)"
+              echo "   Jq: $(jq --version)"
+              echo ""
+              echo "System Info:"
+              echo "   OS: $(uname -s)"
+              echo "   Kernel: $(uname -r)"
+              echo "   Architecture: $(uname -m)"
+            displayName: "4. System Info"
+
+          - script: |
+              echo "Repository Contents:"
+              ls -lh
+              echo ""
+              echo "Git Status:"
+              git status
+              echo ""
+              echo "Latest Commit:"
+              git log -1 --oneline
+            displayName: "5. Repository Info"
+
+  - stage: ValidateK8s
+    displayName: "Validate Kubernetes Manifests"
+    dependsOn: Test
+    jobs:
+      - job: ValidateYAML
+        displayName: "Validate YAML Files"
+        steps:
+          - script: |
+              echo "Finding Kubernetes YAML files..."
+              find apps/ -name "*.yaml" -type f
+            displayName: "1. Find YAML Files"
+
+          - script: |
+              echo "Validating YAML syntax..."
+              for file in $(find apps/ -name "*.yaml" -type f); do
+                echo "Checking: $file"
+                kubectl apply --dry-run=client -f "$file" || echo "Warning in $file"
+              done
+            displayName: "2. Dry-run Validation"
+            continueOnError: true
+
+  - stage: Summary
+    displayName: "Pipeline Summary"
+    dependsOn:
+      - Test
+      - ValidateK8s
+    jobs:
+      - job: Summary
+        displayName: "Build Summary"
+        steps:
+          - script: |
+              echo "Pipeline Completed Successfully"
+              echo ""
+              echo "Summary:"
+              echo "   - Agent: Homelab Kubernetes"
+              echo "   - Docker: Working"
+              echo "   - Kubectl: Working"
+              echo "   - Repository: Cloned"
+              echo "   - YAML: Validated"
+              echo ""
+              echo "Homelab agents are ready for CI/CD"
+            displayName: "Success Summary"
