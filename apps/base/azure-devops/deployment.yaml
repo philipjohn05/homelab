@@ -18,7 +18,7 @@ spec:
       serviceAccountName: azdo-agent
       containers:
       - name: agent
-        image: moikot/azure-pipelines-agent:latest
+        image: mcr.microsoft.com/azure-pipelines/vsts-agent:latest
         env:
         - name: AZP_URL
           valueFrom:
