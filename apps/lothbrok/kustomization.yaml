@@ -4,4 +4,4 @@ resources:
   - cloudflared
   - linkding
   - pgadmin
-  - azure-devops
+#  - azure-devops
