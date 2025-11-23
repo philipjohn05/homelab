@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: azdo-agent
+  namespace: azure-devops
+  labels:
+    app: azdo-agent
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: azdo-agent
+  template:
+    metadata:
+      labels:
+        app: azdo-agent
+    spec:
+      serviceAccountName: azdo-agent
+      containers:
+        - name: agent
+          image: mcr.microsoft.com/azure-pipelines/vsts-agent:ubuntu-22.04
+          env:
+            - name: AZP_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: azdo-agent-config
+                  key: AZP_URL
+            - name: AZP_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: azdo-pat
+                  key: token
+            - name: AZP_POOL
+              valueFrom:
+                configMapKeyRef:
+                  name: azdo-agent-config
+                  key: AZP_POOL
+            - name: AZP_AGENT_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+          volumeMounts:
+            - name: docker-socket
+              mountPath: /var/run/docker.sock
+      volumes:
+        - name: docker-socket
+          hostPath:
+            path: /var/run/docker.sock
+            type: Socket
+      restartPolicy: Always

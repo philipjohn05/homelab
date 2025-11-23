@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: azure-devops
+  labels:
+    name: azure-devops
+    toolkit.fluxcd.io/tenant: homelab
