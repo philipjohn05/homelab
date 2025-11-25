@@ -1,6 +1,3 @@
-# azure-pipelines.yml
-# Optimized for homelab GitOps
-
 trigger:
   branches:
     include:
@@ -8,6 +5,7 @@ trigger:
   paths:
     include:
       - apps/**
+      - infrastructure/**
       - docker/**
     exclude:
       - "**/*.md"
@@ -20,6 +18,7 @@ pr:
   paths:
     include:
       - apps/**
+      - infrastructure/**
       - docker/**
 
 pool:
@@ -29,26 +28,125 @@ stages:
   - stage: Validate
     displayName: "Validate Changes"
     jobs:
-      - job: ValidateYAML
-        displayName: "Validate Kubernetes YAML"
+      - job: ValidateKustomize
+        displayName: "Validate Kustomize Manifests"
         steps:
           - script: |
-              echo "Validating YAML files..."
-              for file in $(find apps/ -name "*.yaml" -type f); do
-                kubectl apply --dry-run=client -f "$file"
-              done
+              echo "🔍 Installing kustomize..."
+              curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+              sudo mv kustomize /usr/local/bin/
+              kustomize version
+            displayName: "Install Kustomize"
+          
+          - script: |
+              echo "🏗️ Building Kustomize manifests..."
+              
+              # Build apps
+              echo "Building apps/lothbrok..."
+              kustomize build apps/lothbrok/ > /tmp/lothbrok-apps.yaml
+              echo "✅ Apps build successful"
+              
+              # Build infrastructure controllers
+              if [ -d "infrastructure/controllers/lothbrok" ]; then
+                echo "Building infrastructure/controllers/lothbrok..."
+                kustomize build infrastructure/controllers/lothbrok/ > /tmp/lothbrok-controllers.yaml
+                echo "✅ Controllers build successful"
+              fi
+              
+              # Build infrastructure config
+              if [ -d "infrastructure/config/lothbrok" ]; then
+                echo "Building infrastructure/config/lothbrok..."
+                kustomize build infrastructure/config/lothbrok/ > /tmp/lothbrok-config.yaml
+                echo "✅ Config build successful"
+              fi
+              
+              echo "✅ All Kustomize builds completed successfully!"
+            displayName: "Build Kustomize"
+          
+          - script: |
+              echo "🔍 Validating Kubernetes manifests..."
+              
+              # Validate apps
+              echo "Validating apps..."
+              kubectl apply --dry-run=client -f /tmp/lothbrok-apps.yaml
+              
+              # Validate controllers
+              if [ -f "/tmp/lothbrok-controllers.yaml" ]; then
+                echo "Validating controllers..."
+                kubectl apply --dry-run=client -f /tmp/lothbrok-controllers.yaml
+              fi
+              
+              # Validate config
+              if [ -f "/tmp/lothbrok-config.yaml" ]; then
+                echo "Validating config..."
+                kubectl apply --dry-run=client -f /tmp/lothbrok-config.yaml
+              fi
+              
+              echo "✅ All manifests validated successfully!"
             displayName: "Dry-run Validation"
+          
+          - script: |
+              echo "📊 Manifest Summary:"
+              echo "===================="
+              
+              echo ""
+              echo "Apps:"
+              kubectl get -f /tmp/lothbrok-apps.yaml --dry-run=client -o name | sort | uniq
+              
+              if [ -f "/tmp/lothbrok-controllers.yaml" ]; then
+                echo ""
+                echo "Controllers:"
+                kubectl get -f /tmp/lothbrok-controllers.yaml --dry-run=client -o name | sort | uniq
+              fi
+              
+              if [ -f "/tmp/lothbrok-config.yaml" ]; then
+                echo ""
+                echo "Config:"
+                kubectl get -f /tmp/lothbrok-config.yaml --dry-run=client -o name | sort | uniq
+              fi
+            displayName: "Show Manifest Summary"
 
   - stage: Test
     displayName: "Run Tests"
     dependsOn: Validate
     jobs:
       - job: TestAgent
+        displayName: "Verify Agent & Cluster"
         steps:
           - script: |
+              echo "🐳 Docker version:"
               docker version
+              
+              echo ""
+              echo "☸️  Kubernetes cluster:"
               kubectl cluster-info
+              
+              echo ""
+              echo "📦 Kubernetes version:"
+              kubectl version --short
+              
+              echo ""
+              echo "🔌 Flux status:"
+              flux check || echo "⚠️  Flux check failed (non-blocking)"
             displayName: "Verify Agent Capabilities"
+      
+      - job: ValidateFlux
+        displayName: "Validate Flux Kustomizations"
+        steps:
+          - script: |
+              echo "🔍 Checking Flux Kustomization resources..."
+              
+              # Check if apps kustomization exists
+              kubectl get kustomization apps -n flux-system || echo "⚠️  Apps kustomization not found"
+              
+              # Check if infrastructure kustomization exists
+              kubectl get kustomization infrastructure -n flux-system || echo "⚠️  Infrastructure kustomization not found"
+              
+              # Show all kustomizations
+              echo ""
+              echo "📋 All Flux Kustomizations:"
+              kubectl get kustomization -n flux-system
+            displayName: "Check Flux Resources"
 
   - stage: Deploy
     displayName: "Deploy to Cluster"
@@ -56,10 +154,47 @@ stages:
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
     jobs:
       - job: DeployApps
+        displayName: "Trigger FluxCD Reconciliation"
         steps:
           - script: |
-              echo "Deploying changed applications..."
-              # FluxCD will handle the actual deployment
-              # This just validates the sync
-              flux reconcile kustomization apps --with-source
+              echo "🔄 Triggering FluxCD reconciliation..."
+              
+              # Reconcile source (Git repository)
+              echo "Reconciling source..."
+              flux reconcile source git flux-system --timeout=5m
+              
+              # Reconcile apps kustomization
+              echo "Reconciling apps..."
+              flux reconcile kustomization apps --with-source --timeout=5m
+              
+              # Reconcile infrastructure if it exists
+              if kubectl get kustomization infrastructure -n flux-system &>/dev/null; then
+                echo "Reconciling infrastructure..."
+                flux reconcile kustomization infrastructure --with-source --timeout=5m
+              fi
+              
+              echo "✅ FluxCD reconciliation triggered successfully!"
             displayName: "Trigger FluxCD Sync"
+          
+          - script: |
+              echo "📊 Deployment Status:"
+              echo "===================="
+              
+              # Wait a bit for reconciliation
+              sleep 10
+              
+              # Show kustomization status
+              echo ""
+              echo "Flux Kustomizations:"
+              kubectl get kustomization -n flux-system
+              
+              # Show helmrelease status
+              echo ""
+              echo "Helm Releases:"
+              kubectl get helmrelease -A || echo "No HelmReleases found"
+              
+              # Show recent events
+              echo ""
+              echo "Recent Events:"
+              kubectl get events -n flux-system --sort-by='.lastTimestamp' | tail -20
+            displayName: "Show Deployment Status"
