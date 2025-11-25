@@ -19,7 +19,7 @@ spec:
       containers:
         # Azure DevOps Agent
         - name: agent
-          image: pjsleepless/azdo-agent:v2
+          image: pjsleepless/azdo-agent:v3
           env:
             - name: AZP_URL
               valueFrom:
