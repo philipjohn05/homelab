@@ -91,7 +91,7 @@ Running on **Proxmox VE 8.x** as the hypervisor layer:
 
 **Physical Hardware:**
 
-- Proxmox Host: ThinkCentre M90T, 48GM RAM & GPU 1660 Super
+- Proxmox Host: ThinkCentre M90T, 48GB RAM & GPU 1660 Super
 - Storage: local storage
 
 ---
