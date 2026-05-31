@@ -219,5 +219,8 @@ spec:
     kubeScheduler:
       enabled: false
 
+    kubeProxy:
+      enabled: false
+
     defaultRules:
       create: true
