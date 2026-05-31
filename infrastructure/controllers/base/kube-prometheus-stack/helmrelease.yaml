@@ -135,7 +135,7 @@ spec:
                 severity: none
               receiver: "null"
             - match_re:
-                alertname: "KubeControllerManagerDown|KubeProxyDown|KubeSchedulerDown"
+                alertname: "KubeControllerManagerDown|KubeProxyDown|KubeSchedulerDown|KubeControllerManagerInstanceUnreachable|KubeSchedulerInstanceUnreachable"
               receiver: "null"
             - match:
                 alertname: TargetDown
@@ -212,6 +212,12 @@ spec:
 
     kubeStateMetrics:
       enabled: true
+
+    kubeControllerManager:
+      enabled: false
+
+    kubeScheduler:
+      enabled: false
 
     defaultRules:
       create: true
