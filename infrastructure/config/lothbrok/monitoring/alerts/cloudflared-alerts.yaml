@@ -42,10 +42,13 @@ spec:
             description: 'Cloudflared pod {{ $labels.pod }} has restarted {{ printf "%.2f" $value }} times in the last 15 minutes'
 
         - alert: CloudflaredTunnelDisconnected
-          expr: kube_pod_container_status_last_terminated_reason{namespace="cloudflared",reason!="Completed"} == 1
+          annotations:
+            description: "Cloudflared pod {{ $labels.pod }} terminated with reason: {{$labels.reason }}"
+            summary: Cloudflared tunnel disconnected unexpectedly
+          expr: |
+            (kube_pod_container_status_last_terminated_reason{namespace="cloudflared",reason!="Completed"} == 1)
+            and
+            (changes(kube_pod_container_status_restarts_total{namespace="cloudflared"}[30m]) > 0)
           for: 2m
           labels:
             severity: critical
-          annotations:
-            summary: "Cloudflared tunnel disconnected unexpectedly"
-            description: "Cloudflared pod {{ $labels.pod }} terminated with reason: {{ $labels.reason }}"
