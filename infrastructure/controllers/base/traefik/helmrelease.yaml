@@ -37,7 +37,8 @@ spec:
       retries: 3
   values:
     service:
-      type: LoadBalancer
+      spec:
+        type: LoadBalancer
       annotations:
         metallb.universe.tf/address-pool: ingress-pool
     ports:
